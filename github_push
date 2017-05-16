@@ -1,0 +1,10 @@
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <project url>
+git push -f origin master
+
+
+# if error her: git remote add origin <project url>
+# use this one : git remote set-url origin https://github.com/fatchur/Gender-Recognition-with-classic-Neural-Network-BPNN-.git
+
