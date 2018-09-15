@@ -1,0 +1,76 @@
+DOCKER NOTE
+
+--- For Creating Docker file
+1. Run a linux command
+   use: RUN <ubuntu command>
+2. ADD a FOLDER to THE DOCKE:
+   use: ADD <folder path>
+3. Change docker directory
+   use: WORKDIR <folder path>
+4. Clone github
+   use: git clone https://<usermname>:<password>@bitbucket.org/verysmartdonkey/base-detector.git
+
+
+
+--- Build Image
+docker build -t <repository_name>:<tag> .
+
+
+
+-- IF you use .tar file from another person
+-- Load docker .tar file
+docker load -i <file-name>.tar
+
+
+
+-- Build container
+docker run -it --runtime=nvidia --name <name of the container> -v <host folder path>:<docker folder path> --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"  --entrypoint /bin/bash <image_name>
+
+---- Explanation:
+     1. Mount a FOLDER to THE DOCKER:
+        -v <host folder path>:<docker folder path>
+
+     2. SET GUI in DOCKER
+        --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"
+
+---- Example: sudo docker run -it --runtime=nvidia --name opencv_nodeflux_project3 -v "$(pwd)":/home --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"  --entrypoint /bin/bash opencv32:0.1.1
+
+
+
+-- Start Container
+docker start <container name>
+
+
+
+-- Execute container
+docker exec -it <container name> bash
+
+
+
+-- commit docker (if u install certain package, you should commit the docker in a new version)
+docker commit <container name> <image name>:<update version>
+
+-- save docker image
+docker save -o <output file name>.tar <docker image>
+
+
+-- jika setting gui seperti pada build container di atas tak jalan
+--------
+# Expose your xhost
+xhost +local:docker
+
+# When you finish, you can return the access control by using the following
+#xhost -local:docker
+ 
+# Add environment variables
+XSOCK=/tmp/.X11-unix
+XAUTH=/tmp/.docker.xauth
+ 
+# Create the authentication files
+touch /tmp/.docker.xauth
+ 
+# Create permission
+xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+--------
+
+
