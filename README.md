@@ -12,6 +12,6 @@ This is what you get out of the box when you create a container with the provide
 * [cuDNN 7](https://developer.nvidia.com/cudnn)
 * [Tensorflow](https://www.tensorflow.org/)
 * [Keras](http://keras.io/)
-* [iPython/Jupyter Notebook](http://jupyter.org/) (including iTorch kernel)
-* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/)
+* [iPython/Jupyter Notebook](http://jupyter.org/) 
+* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/) (for python2 and 3)
 * [OpenCV](http://opencv.org/)
