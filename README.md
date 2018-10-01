@@ -6,12 +6,25 @@ Here are Dockerfiles to get you up and running with a fully functional deep lear
 If you are not familiar with Docker, but would still like an all-in-one solution, start here: [What is Docker?](#what-is-docker). If you know what Docker is, but are wondering why we need one for deep learning, [see this](#why-do-i-need-a-docker)
 
 ## Specs
+### For Ubuntu 18.04 Docker
 This is what you get out of the box when you create a container with the provided image/Dockerfile:
-* Ubuntu 14.04
+* Ubuntu 18.04
 * [CUDA 9.2](https://developer.nvidia.com/cuda-toolkit)
 * [cuDNN 7](https://developer.nvidia.com/cudnn)
 * [Tensorflow](https://www.tensorflow.org/)
 * [Keras](http://keras.io/)
 * [iPython/Jupyter Notebook](http://jupyter.org/) 
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/) (for python2 and 3)
-* [OpenCV](http://opencv.org/)
+* [OpenCV 3.4](http://opencv.org/)
+
+
+### For Ubuntu 16.04 Docker
+This is what you get out of the box when you create a container with the provided image/Dockerfile:
+* Ubuntu 16.04
+* [CUDA 8](https://developer.nvidia.com/cuda-toolkit)
+* [cuDNN 5](https://developer.nvidia.com/cudnn)
+* [Tensorflow 1.4.1](https://www.tensorflow.org/)
+* [Keras](http://keras.io/)
+* [iPython/Jupyter Notebook](http://jupyter.org/) 
+* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/) (for python2 and 3)
+* [OpenCV 3.4](http://opencv.org/)
