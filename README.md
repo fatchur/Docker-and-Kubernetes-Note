@@ -28,3 +28,16 @@ This is what you get out of the box when you create a container with the provide
 * [iPython/Jupyter Notebook](http://jupyter.org/) 
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/) (for python2 and 3)
 * [OpenCV 3.4](http://opencv.org/)
+
+
+### Gogle Cloud K80 GPU Note
+* You should install nvidia driver__
+curl -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.0.176-1_amd64.deb__
+sudo dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb__
+sudo apt-get update__
+* Sincronize the driver__
+sudo nvidia-smi -pm 1__
+* Check the Driver__
+nvidia-smi
+* The last, BUILD YOUR DOCKER FILE
+
