@@ -27,16 +27,21 @@ RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow-gpu==1.4.1
 RUN pip3 install numpy pandas sklearn matplotlib jupyter pyyaml h5py
 RUN pip3 install keras --no-deps
+RUN pip3 install flask
+RUN pip3 install mysql-connector
 
 RUN pip2 install --upgrade pip
 RUN pip2 install tensorflow-gpu==1.4.1
 RUN pip2 install numpy pandas sklearn matplotlib jupyter pyyaml h5py
 RUN pip2 install keras --no-deps
+RUN pip2 install flask
+RUN pip2 install mysql-connector
 
-RUN ["mkdir", "notebooks"]
-COPY jupyter_notebook_config.py /root/.jupyter/
 
 # ------------------- opencv dependencies ------------------
+ENV TZ=Asia/Jakarta
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN mkdir -p /usr/src/app 
 WORKDIR /usr/src/app 
 
@@ -65,42 +70,41 @@ RUN apt-get update && apt-get install -y \
     python-opencv \ 
     qt5-default \
     libvtk6-dev \ 
-    zlib1g-dev 
-    
+zlib1g-dev
+
 #------------ Install Open CV - Warning, this takes absolutely forever
-RUN mkdir -p ~/opencv cd ~/opencv && \
-    wget https://github.com/Itseez/opencv/archive/3.2.0.zip && \
-    unzip 3.2.0.zip && \
-    rm 3.2.0.zip && \
-    mv opencv-3.2.0 OpenCV && \
-    cd OpenCV && \
-    mkdir build && \ 
-    cd build && \
-    cmake \
-    -DWITH_IPP=OFF \
-    -DWITH_CUDA=OFF \
-    -DWITH_QT=ON \ 
-    -DWITH_OPENGL=ON \ 
-    -DFORCE_VTK=ON \
-    -DWITH_TBB=ON \
-    -DWITH_GDAL=ON \
-    -DWITH_XINE=ON \
-    -DBUILD_EXAMPLES=ON .. && \
-    make -j4 && \
-    make install && \ 
-    ldconfig
+WORKDIR /
+RUN pwd
+RUN wget https://github.com/Itseez/opencv/archive/3.4.2.zip -O opencv.zip \
+	&& unzip /opencv.zip \
+	&& wget https://github.com/Itseez/opencv_contrib/archive/3.4.2.zip -O opencv_contrib.zip \
+	&& unzip /opencv_contrib \
+	&& mkdir opencv-3.4.2/cmake_binary \
+	&& cd opencv-3.4.2/cmake_binary \
+	&& apt-get update \
+	&& cmake -DOPENCV_EXTRA_MODULES_PATH=/opencv_contrib-3.4.2/modules \
+	  -DWITH_IPP=OFF \
+          -DWITH_CUDA=OFF \
+          -DWITH_QT=ON \ 
+          -DWITH_OPENGL=ON \ 
+          -DFORCE_VTK=ON \
+          -DWITH_TBB=ON \
+          -DWITH_GDAL=ON \
+          -DWITH_XINE=ON \
+          -DBUILD_EXAMPLES=ON .. \
+	&& make -j8 \
+	&& make install \
+	&& rm /opencv.zip \
+	&& rm /opencv_contrib.zip \
+	&& rm -r /opencv-3.4.2 \
+	&& rm -r /opencv_contrib-3.4.2
 
 COPY . /usr/src/app 
 # ------------- end of opencv -------------------
-
-# ------------- installing darknet ori ----------
-WORKDIR /media/nodeflux/DATA/darknet
-RUN cmake
 
 # Jupyter and Tensorboard ports
 EXPOSE 8888 6006
 
 # Store notebooks in this mounted directory
-VOLUME /notebooks
 WORKDIR "/root"
 CMD ["/bin/bash"]
