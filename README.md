@@ -16,7 +16,7 @@ This is what you get out of the box when you create a container with the provide
 * [iPython/Jupyter Notebook](http://jupyter.org/) 
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
 [Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/)  (for python2 and 3)
-* [OpenCV 3.4](http://opencv.org/)
+* [OpenCV 3.4](http://opencv.org/) + Contrib
 * [Flask](http://flask.pocoo.org/)
 * Mysql-connector
 
@@ -31,7 +31,7 @@ This is what you get out of the box when you create a container with the provide
 * [iPython/Jupyter Notebook](http://jupyter.org/) 
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
 [Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/) (for python2 and 3)
-* [OpenCV 3.4](http://opencv.org/)
+* [OpenCV 3.4](http://opencv.org/) + Contrib
 * [Flask](http://flask.pocoo.org/)
 * Mysql-connector
 
