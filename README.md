@@ -37,7 +37,7 @@ This is what you get out of the box when you create a container with the provide
 
 
 ### Gogle Cloud K80 GPU Note
-* You should install nvidia driver
+* **You should install nvidia driver**
 
 ```
 curl -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.0.176-1_amd64.deb  
@@ -45,19 +45,19 @@ sudo dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb
 sudo apt-get update  
 ```
 
-* Sincronize the driver
+* **Sincronize the driver**
 
 ```
 sudo nvidia-smi -pm 1  
 ```
 
-* Check the Driver
+* **Check the Driver**
 
 ```
 nvidia-smi
 ```
 
-* The last, BUILD YOUR DOCKER FILE  
+* **The last, BUILD YOUR DOCKER FILE**
 
 ### CUDA and CUDNN Note For Tensorflow
 * Tensorflow 1.4.x: CUDNN 6.0 and CUDA 8.0
