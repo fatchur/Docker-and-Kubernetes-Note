@@ -32,7 +32,7 @@ ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 ENV NVIDIA_REQUIRE_CUDA "cuda>=9.2"
 
-###---------------- End Nvidia Docker -------------------
+###---------------- End of Nvidia Cuda CUDNN -------------------
 
 
 
@@ -45,13 +45,17 @@ RUN apt-get update && apt-get install -y wget ca-certificates \
 
 RUN pip3 install --upgrade pip
 RUN pip3 install tensorflow-gpu
-RUN pip3 install numpy pandas sklearn matplotlib jupyter pyyaml h5py
+RUN pip3 install numpy pandas sklearn matplotlib jupyter pyyaml h5py seaborn
 RUN pip3 install keras --no-deps
+RUN pip3 install flask
+RUN pip3 install mysql-connector
 
 RUN pip2 install --upgrade pip
 RUN pip2 install tensorflow-gpu
-RUN pip2 install numpy pandas sklearn matplotlib jupyter pyyaml h5py
+RUN pip2 install numpy pandas sklearn matplotlib jupyter pyyaml h5py seaborn
 RUN pip2 install keras --no-deps
+RUN pip2 install flask
+RUN pip2 install mysql-connector
 
 ## ---- Bazel
 RUN apt-get update && apt-get install -y openjdk-8-jdk
@@ -61,10 +65,29 @@ RUN echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8
 RUN apt-get update \
   && apt-get install -y bazel \
 && rm -rf /var/lib/apt/lists/*
-
 ### --------------- End of python pip anf TF installation ---
 
 
+
+### Optional package from my repository
+WORKDIR /
+RUN git clone https://github.com/fatchur/Simple-Tensor.git
+WORKDIR /Simple-Tensor
+RUN python3 setup.py install
+RUN python2 setup.py install
+
+WORKDIR /
+RUN git clone https://github.com/fatchur/Feature-Engineering-Utils.git
+WORKDIR /Feature-Engineering-Utils
+RUN python3 setup.py install
+RUN python2 setup.py install
+
+WORKDIR /
+RUN git clone https://github.com/fatchur/Mysql-Utils.git
+WORKDIR /Feature-Engineering-Utils
+RUN python3 setup.py install 
+RUN python2 setup.py install
+###### ----------------------------------------------------
 
 
 # ------------------- opencv dependencies ------------------
