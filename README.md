@@ -11,11 +11,14 @@ This is what you get out of the box when you create a container with the provide
 * Ubuntu 18.04
 * [CUDA 9.2](https://developer.nvidia.com/cuda-toolkit)
 * [cuDNN 7](https://developer.nvidia.com/cudnn)
-* [Tensorflow](https://www.tensorflow.org/)
+* [Tensorflow-gpu](https://www.tensorflow.org/)
 * [Keras](http://keras.io/)
 * [iPython/Jupyter Notebook](http://jupyter.org/) 
-* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/) (for python2 and 3)
+* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
+[Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/)  (for python2 and 3)
 * [OpenCV 3.4](http://opencv.org/)
+* [Flask](http://flask.pocoo.org/)
+* Mysql-connector
 
 
 ### For Ubuntu 16.04 Docker
@@ -23,11 +26,14 @@ This is what you get out of the box when you create a container with the provide
 * Ubuntu 16.04
 * [CUDA 8](https://developer.nvidia.com/cuda-toolkit)
 * [cuDNN 5](https://developer.nvidia.com/cudnn)
-* [Tensorflow 1.4.1](https://www.tensorflow.org/)
+* [Tensorflow-gpu 1.4.1](https://www.tensorflow.org/)
 * [Keras](http://keras.io/)
 * [iPython/Jupyter Notebook](http://jupyter.org/) 
-* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), [Matplotlib](http://matplotlib.org/) (for python2 and 3)
+* [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
+[Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/) (for python2 and 3)
 * [OpenCV 3.4](http://opencv.org/)
+* [Flask](http://flask.pocoo.org/)
+* Mysql-connector
 
 
 ### Gogle Cloud K80 GPU Note
@@ -36,12 +42,15 @@ This is what you get out of the box when you create a container with the provide
 curl -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.0.176-1_amd64.deb  
 sudo dpkg -i cuda-repo-ubuntu1604_9.0.176-1_amd64.deb  
 sudo apt-get update  
+
 * Sincronize the driver
 
 sudo nvidia-smi -pm 1  
+
 * Check the Driver
 
 nvidia-smi
+
 * The last, BUILD YOUR DOCKER FILE  
 
 ### CUDA and CUDNN Note For Tensorflow
