@@ -29,6 +29,9 @@ RUN pip3 install numpy pandas sklearn matplotlib jupyter pyyaml h5py
 RUN pip3 install keras --no-deps
 RUN pip3 install flask
 RUN pip3 install mysql-connector
+RUN pip3 install statsmodels
+RUN python3 -m pip install ipykernel
+RUN python3 -m ipykernel install --user
 
 RUN pip2 install --upgrade pip
 RUN pip2 install tensorflow-gpu==1.4.1
@@ -36,6 +39,7 @@ RUN pip2 install numpy pandas sklearn matplotlib jupyter pyyaml h5py
 RUN pip2 install keras --no-deps
 RUN pip2 install flask
 RUN pip2 install mysql-connector
+RUN pip2 install statsmodels
 
 
 # ------------------- opencv dependencies ------------------

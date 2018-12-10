@@ -44,18 +44,24 @@ RUN apt-get update && apt-get install -y wget ca-certificates \
     git curl vim python2.7-dev python-pip 
 
 RUN pip3 install --upgrade pip
-RUN pip3 install tensorflow-gpu
+RUN pip3 install tensorflow
 RUN pip3 install numpy pandas sklearn matplotlib jupyter pyyaml h5py seaborn
 RUN pip3 install keras --no-deps
 RUN pip3 install flask
 RUN pip3 install mysql-connector
+RUN pip3 install xgboost
+RUN pip3 install statsmodels
+RUN python3 -m pip install ipykernel
+RUN python3 -m ipykernel install --user
 
 RUN pip2 install --upgrade pip
-RUN pip2 install tensorflow-gpu
+RUN pip2 install tensorflow
 RUN pip2 install numpy pandas sklearn matplotlib jupyter pyyaml h5py seaborn
 RUN pip2 install keras --no-deps
 RUN pip2 install flask
 RUN pip2 install mysql-connector
+RUN pip2 install xgboost
+RUN pip3 install statsmodels
 
 ## ---- Bazel
 RUN apt-get update && apt-get install -y openjdk-8-jdk
@@ -84,7 +90,7 @@ RUN python2 setup.py install
 
 WORKDIR /
 RUN git clone https://github.com/fatchur/Mysql-Utils.git
-WORKDIR /Feature-Engineering-Utils
+WORKDIR //Mysql-Utils
 RUN python3 setup.py install 
 RUN python2 setup.py install
 ###### ----------------------------------------------------
