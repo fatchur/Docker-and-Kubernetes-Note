@@ -59,7 +59,7 @@ sudo nvidia-smi -pm 1
 nvidia-smi
 ```
 
-* **If these don't work, try to install automatically by this:**
+* **If these steps don't work, try to install automatically by this:**
 ```
 sudo apt install ubuntu-drivers-common
 ```
