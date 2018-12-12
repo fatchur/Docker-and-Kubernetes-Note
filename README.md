@@ -59,6 +59,15 @@ sudo nvidia-smi -pm 1
 nvidia-smi
 ```
 
+* **If these don't work, try to install automatically by this:**
+```
+sudo apt install ubuntu-drivers-common
+```
+* **Or this:**
+```
+sudo ubuntu-drivers autoinstall
+```
+
 * **The last, BUILD YOUR DOCKER FILE**
 
 ### CUDA and CUDNN Note For Tensorflow
