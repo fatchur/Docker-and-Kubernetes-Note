@@ -42,6 +42,27 @@ RUN pip2 install mysql-connector
 RUN pip2 install statsmodels
 
 
+### Optional package from my repository
+WORKDIR /
+RUN git clone https://github.com/fatchur/Simple-Tensor.git
+WORKDIR /Simple-Tensor
+RUN python3 setup.py install
+RUN python2 setup.py install
+
+WORKDIR /
+RUN git clone https://github.com/fatchur/Feature-Engineering-Utils.git
+WORKDIR /Feature-Engineering-Utils
+RUN python3 setup.py install
+RUN python2 setup.py install
+
+WORKDIR /
+RUN git clone https://github.com/fatchur/Mysql-Utils.git
+WORKDIR //Mysql-Utils
+RUN python3 setup.py install 
+RUN python2 setup.py install
+###### ----------------------------------------------------
+
+
 # ------------------- opencv dependencies ------------------
 ENV TZ=Asia/Jakarta
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
