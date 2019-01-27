@@ -30,6 +30,7 @@ RUN pip3 install keras --no-deps
 RUN pip3 install flask
 RUN pip3 install mysql-connector
 RUN pip3 install statsmodels
+RUN pip3 install gunicorn
 RUN python3 -m pip install ipykernel
 RUN python3 -m ipykernel install --user
 
@@ -40,6 +41,7 @@ RUN pip2 install keras --no-deps
 RUN pip2 install flask
 RUN pip2 install mysql-connector
 RUN pip2 install statsmodels
+RUN pip2 install gunicorn
 
 
 ### Optional package from my repository

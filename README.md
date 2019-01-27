@@ -17,6 +17,7 @@ This is what you get out of the box when you create a container with the provide
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
 [Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/), [Xgboost](https://xgboost.readthedocs.io/en/latest/), [Statmodels](https://pypi.org/project/statsmodels/),
 Jupyter  (python2 and 3)
+* [gunicorn web server](http://docs.gunicorn.org/en/stable/install.html)
 * [OpenCV 3.4](http://opencv.org/) + Contrib
 * [Flask](http://flask.pocoo.org/)
 * Mysql-connector
@@ -33,6 +34,7 @@ This is what you get out of the box when you create a container with the provide
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
 [Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/), [Xgboost](https://xgboost.readthedocs.io/en/latest/), [Statmodels](https://pypi.org/project/statsmodels/),
 Jupyter (for python2 and 3)
+* [gunicorn web server](http://docs.gunicorn.org/en/stable/install.html)
 * [OpenCV 3.4](http://opencv.org/) + Contrib
 * [Flask](http://flask.pocoo.org/)
 * Mysql-connector
