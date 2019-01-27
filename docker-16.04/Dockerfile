@@ -57,7 +57,13 @@ RUN python2 setup.py install
 
 WORKDIR /
 RUN git clone https://github.com/fatchur/Mysql-Utils.git
-WORKDIR //Mysql-Utils
+WORKDIR /Mysql-Utils
+RUN python3 setup.py install 
+RUN python2 setup.py install
+
+WORKDIR /
+RUN git clone https://github.com/fatchur/COMDUTILS-computer-vision-deployment-utils.git
+WORKDIR /COMDUTILS-computer-vision-deployment-utils
 RUN python3 setup.py install 
 RUN python2 setup.py install
 ###### ----------------------------------------------------
