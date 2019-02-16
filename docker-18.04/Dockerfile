@@ -32,6 +32,17 @@ ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 ENV NVIDIA_REQUIRE_CUDA "cuda>=9.2"
 
+
+ENV CUDNN_VERSION 7.4.1.5
+LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+            libcudnn7=$CUDNN_VERSION-1+cuda9.2 \
+            libcudnn7-dev=$CUDNN_VERSION-1+cuda9.2 && \
+    apt-mark hold libcudnn7 && \
+    rm -rf /var/lib/apt/lists/*
+
+
 ###---------------- End of Nvidia Cuda CUDNN -------------------
 
 
@@ -44,7 +55,7 @@ RUN apt-get update && apt-get install -y wget ca-certificates \
     git curl vim python2.7-dev python-pip 
 
 RUN pip3 install --upgrade pip
-RUN pip3 install tensorflow
+RUN pip3 install tensorflow-gpu==1.12
 RUN pip3 install numpy pandas sklearn matplotlib jupyter pyyaml h5py seaborn
 RUN pip3 install keras --no-deps
 RUN pip3 install flask
@@ -56,7 +67,7 @@ RUN python3 -m pip install ipykernel
 RUN python3 -m ipykernel install --user
 
 RUN pip2 install --upgrade pip
-RUN pip2 install tensorflow
+RUN pip2 install --default-timeout=10000 tensorflow-gpu==1.12
 RUN pip2 install numpy pandas sklearn matplotlib jupyter pyyaml h5py seaborn
 RUN pip2 install keras --no-deps
 RUN pip2 install flask
@@ -114,6 +125,8 @@ RUN apt-get update
 ENV TZ=Asia/Jakarta
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+
+RUN apt-get update
 RUN apt-get install -y \ 
     wget \
     build-essential \ 
