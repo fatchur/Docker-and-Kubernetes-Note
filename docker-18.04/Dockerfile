@@ -16,6 +16,8 @@ RUN pip3 install mysql-connector
 RUN pip3 install xgboost
 RUN pip3 install statsmodels
 RUN pip3 install gunicorn
+RUN pip3 install requests
+RUN pip3 install imutils
 RUN python3 -m pip install ipykernel
 RUN python3 -m ipykernel install --user
 
@@ -28,6 +30,8 @@ RUN pip2 install mysql-connector
 RUN pip2 install xgboost
 RUN pip2 install statsmodels
 RUN pip2 install gunicorn
+RUN pip2 install requests
+RUN pip2 install imutils
 
 ## ---- Bazel
 RUN apt-get update && apt-get install -y openjdk-8-jdk
