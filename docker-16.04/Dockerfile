@@ -1,5 +1,4 @@
 FROM ubuntu:16.04
-# ----------------- end of nvida cuda and cudnn
 
 RUN apt-get update && apt-get install -y wget ca-certificates \
     git curl vim python3-dev python3-pip \
