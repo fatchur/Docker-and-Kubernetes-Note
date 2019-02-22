@@ -13,7 +13,7 @@ This is what you get out of the box when you create a container with the provide
 * [cuDNN 7](https://developer.nvidia.com/cudnn)
 * [Tensorflow-gpu 1.12](https://www.tensorflow.org/)
 * [Keras](http://keras.io/)
-* [iPython/Jupyter Notebook](http://jupyter.org/) 
+* [iPython/Jupyter Notebook for python 2 and 3](http://jupyter.org/) 
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
 [Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/), [Xgboost](https://xgboost.readthedocs.io/en/latest/), [Statmodels](https://pypi.org/project/statsmodels/), requests, imutils
 * [gunicorn web server](http://docs.gunicorn.org/en/stable/install.html)
@@ -29,11 +29,11 @@ This is what you get out of the box when you create a container with the provide
 * [cuDNN 7](https://developer.nvidia.com/cudnn)
 * [Tensorflow-gpu 1.12](https://www.tensorflow.org/)
 * [Keras](http://keras.io/)
-* [iPython/Jupyter Notebook](http://jupyter.org/) 
+* [iPython/Jupyter Notebook for python 2 and 3](http://jupyter.org/) 
 * [Numpy](http://www.numpy.org/), [SciPy](https://www.scipy.org/), [Pandas](http://pandas.pydata.org/), [Scikit Learn](http://scikit-learn.org/), 
 [Matplotlib](http://matplotlib.org/), [Seaborn](https://seaborn.pydata.org/), [Xgboost](https://xgboost.readthedocs.io/en/latest/), [Statmodels](https://pypi.org/project/statsmodels/), requests, imutils
 * [gunicorn web server](http://docs.gunicorn.org/en/stable/install.html)
-* [OpenCV 3.4.2 + Opencv Contribt](http://opencv.org/) + Contrib
+* [OpenCV 3.4.2 + Opencv Contribt](http://opencv.org/)
 * [Flask](http://flask.pocoo.org/)
 * Mysql-connector
 
