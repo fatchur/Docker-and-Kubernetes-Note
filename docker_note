@@ -74,3 +74,12 @@ xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
 --------
 
 
+-- Download repo dengan password
+RUN git clone https://username:password@github.com/username/repository.git
+
+-- Copy file from host to docker
+COPY <local file> <destination>
+COPY <local folder + /> destination
+----- NOTE: the files or folder is in same directory with dockerfile
+
+

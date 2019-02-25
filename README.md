@@ -71,6 +71,11 @@ sudo ubuntu-drivers autoinstall
 * **The last, BUILD YOUR DOCKER FILE**
 
 ### CUDA and CUDNN Note For Tensorflow
-> Tensorflow 1.4.x: CUDNN 6.0 and CUDA 8.0
+> Tensorflow 1.4.x: CUDNN 6.0 and CUDA 8.0 <br/>
 > Tensorflow >= 1.5: CUDNN 7.0 and CUDA 9.0
+
+
+## Kubernetes
+### Install On Ubuntu 16.04
+- 
 
