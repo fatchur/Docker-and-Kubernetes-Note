@@ -68,11 +68,8 @@ RUN pip2 install gunicorn
 
 
 ### Optional package from my repository
-WORKDIR /
-RUN git clone https://github.com/fatchur/Simple-Tensor.git
-WORKDIR /Simple-Tensor
-RUN python3 setup.py install
-RUN python2 setup.py install
+pip3 install simple-tensor==0.4.1
+pip2 install simple-tensor==0.4.1
 
 WORKDIR /
 RUN git clone https://github.com/fatchur/Feature-Engineering-Utils.git
@@ -86,11 +83,8 @@ WORKDIR /Mysql-Utils
 RUN python3 setup.py install 
 RUN python2 setup.py install
 
-WORKDIR /
-RUN git clone https://github.com/fatchur/COMDUTILS-computer-vision-deployment-utils.git
-WORKDIR /COMDUTILS-computer-vision-deployment-utils
-RUN python3 setup.py install 
-RUN python2 setup.py install
+pip3 install comdutils
+pip2 install comdutils
 ###### ----------------------------------------------------
 
 
