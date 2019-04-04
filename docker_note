@@ -24,16 +24,16 @@ docker load -i <file-name>.tar
 
 
 -- Build container
-docker run -it --runtime=nvidia --name <name of the container> -v <host folder path>:<docker folder path> --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"  --entrypoint /bin/bash <image_name>
+docker run -it --runtime=nvidia --name <name of the container> -v <host folder path>:<docker folder path> --network=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"  --entrypoint /bin/bash <image_name>
 
 ---- Explanation:
      1. Mount a FOLDER to THE DOCKER:
         -v <host folder path>:<docker folder path>
 
      2. SET GUI in DOCKER
-        --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"
+        --network=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"
 
----- Example: sudo docker run -it --runtime=nvidia --name opencv_nodeflux_project3 -v "$(pwd)":/home --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"  --entrypoint /bin/bash opencv32:0.1.1
+---- Example: sudo docker run -it --runtime=nvidia --name opencv_nodeflux_project3 -v "$(pwd)":/home --network=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw"  --entrypoint /bin/bash opencv32:0.1.1
 
 
 
