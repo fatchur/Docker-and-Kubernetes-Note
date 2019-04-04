@@ -1,6 +1,6 @@
 FROM nvidia/cuda:9.0-base-ubuntu16.04
 
-LABEL maintainer="Craig Citro <craigcitro@google.com>"
+LABEL maintainer="Chur chur  <fatchur.rahman1@gmail.com>"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -52,6 +52,7 @@ RUN pip3 install statsmodels
 RUN pip3 install gunicorn
 RUN pip3 install requests
 RUN pip3 install imutils
+RUN pip3 install pillow
 RUN python3 -m pip install ipykernel
 RUN python3 -m ipykernel install --user
 
@@ -64,12 +65,13 @@ RUN pip2 install mysql-connector
 RUN pip2 install statsmodels
 RUN pip2 install requests
 RUN pip2 install imutils
+RUN pip2 install pillow
 RUN pip2 install gunicorn
 
 
 ### Optional package from my repository
-pip3 install simple-tensor==0.4.1
-pip2 install simple-tensor==0.4.1
+pip3 install simple-tensor==0.4.3
+pip2 install simple-tensor==0.4.3
 
 WORKDIR /
 RUN git clone https://github.com/fatchur/Feature-Engineering-Utils.git
@@ -87,6 +89,18 @@ pip3 install comdutils
 pip2 install comdutils
 ###### ----------------------------------------------------
 
+###### -------------- settingup zero mq --------------------
+WORKDIR /
+RUN wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz \
+    tar xvzf zeromq-4.2.2.tar.gz \
+    apt-get update && apt-get install -y libtool pkg-config build-essential autoconf automake uuid-dev
+
+WORKDIR /zeromq-4.2.2
+RUN ./configure /
+    make install /
+    ldconfig /
+    ldconfig -p | grep zmq
+###### ----------------------------------------------------
 
 # ------------------- opencv dependencies ------------------
 ENV TZ=Asia/Jakarta
