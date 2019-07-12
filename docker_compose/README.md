@@ -13,3 +13,6 @@
 - `docker-compose down --volumes` : stopping the application and releasing the binded volumes
 - `docker-compose ps -a` : see the docker compose images list
 - `docker-compose run <service name>` : run only one of the services (part of services)
+
+another references, find [here](https://docs.docker.com/compose/reference/overview/)
+
