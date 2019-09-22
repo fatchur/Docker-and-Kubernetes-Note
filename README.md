@@ -75,7 +75,3 @@ sudo ubuntu-drivers autoinstall
 > Tensorflow >= 1.5: CUDNN 7.0 and CUDA 9.0
 
 
-## Kubernetes
-### Install On Ubuntu 16.04
-- 
-
