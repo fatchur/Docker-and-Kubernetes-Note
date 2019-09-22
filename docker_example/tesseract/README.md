@@ -24,4 +24,4 @@ The Response:
 }
 ```
 
-**NOTE: The python code example is available here**
+**NOTE:** The python code example is available here (main.py)
