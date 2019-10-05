@@ -8,6 +8,8 @@
 3. **NOTE**: This docker is working well for ubuntu 18.04 (bionic)
 4. Run the downloaded docker image: `sudo docker run --name redis_deploy -d -p 6379:6379 <image name>:v0`
 5. **NOTE**: Now your service is up
+6. to stop your service: `sudo docker ps -a`, `sudo docker stop <redis container name>`
+7. to restart your redis server: `sudo docker start <redis container name>`
 
 
 ### Opend The Redis DB
