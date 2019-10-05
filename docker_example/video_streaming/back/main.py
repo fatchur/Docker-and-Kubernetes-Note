@@ -7,9 +7,11 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 import redis
 
+
 r = redis.Redis(host='localhost', port=6379, db=0)
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
 
 @app.route('/')
 def sessions():
@@ -17,14 +19,14 @@ def sessions():
     return render_template('index.html')
 
 
-def messageReceived(methods=['GET', 'POST']):
-    print('frame transmitted')
-
-
 @app.before_first_request
 def before_first_request_func():
     r.set('video_on', 0)
     print ('executed')
+
+
+def messageReceived(methods=['GET', 'POST']):
+    print('frame transmitted')
 
 
 def send_frame(): 
@@ -36,6 +38,7 @@ def send_frame():
                 ret, frame = cap.read()
 
                 if ret == True:
+                    frame = cv2.resize(frame, (360, 240))
                     frame = cv2.imencode('.jpg', frame)[1]
                     frame = base64.b64encode(frame).decode()
                     frame = 'data:image/jpeg;base64,' + frame
