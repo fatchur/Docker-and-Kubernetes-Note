@@ -1,5 +1,7 @@
 ## Redis Docker Note
 
+![](assets/redis.png)
+
 ### How To Use
 1. Install docker-ce [link](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 2. Download ready to deploy tesseract docker: `docker pull fatchur/redis1804:v0`
