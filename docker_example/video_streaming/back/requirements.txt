@@ -1,0 +1,12 @@
+flask
+flaks-socketio
+gunicorn
+gevent
+opencv-python
+numpy
+flask-script
+redis
+
+# apt-get install redis server
+# service redis-server start
+# redis-server
