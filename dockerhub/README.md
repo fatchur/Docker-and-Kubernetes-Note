@@ -1,5 +1,7 @@
 ## DOCKERHUB NOTE
 
+![](assets/dockerhub.png)
+
 ### Push the Image to the Dockerhub
 - login to your dockerhub account first </br>
 `sudo docker login docker.io`
