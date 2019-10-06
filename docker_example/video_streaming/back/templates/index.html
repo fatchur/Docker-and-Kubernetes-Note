@@ -82,34 +82,72 @@
 						</div>
 					</div>
 					<div class="active-works-carousel mt-40">
+						<!-- video result dashboards -->
 						<div class="item">
-								<img id='image' alt="">
-
-								<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js'></script>
-								<script>
-									const socket = io.connect('http://192.168.28.200:8080');
-									
-									socket.on('connect', function() {
-										socket.emit( 'url', {
-											data: 'User Connected'
-									}) })
-						
-									socket.on('video_frame', (image) =>{
-										const imageElm = document.getElementById('image');
-										imageElm.src = image;
-									})
-						
-								</script>
+							<!-- set the video position           -->
+							<!-- the video is coming from socket  -->
+							<div class="row">
+								<div class="column">
+									<img id='image1' alt="" style="width:80%">
+								</div>
+								<div class="column">
+									<img id='image2' alt="" style="width:80%">
+								</div>
+							</div>
+							<!-- importing socket for js           -->
+							<!-- connect to server socket          -->
+							<!-- send and get the data from server -->
+							<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js'></script>
+							<script>
+								const socket = io.connect('http://192.168.28.200:8005');
+								
+								socket.on('connect', function() {
+									socket.emit( 'url', {
+										data: 'User Connected'
+								}) })
+					
+								socket.on('video_frame', (image) =>{
+									const imageElm1 = document.getElementById('image1');
+									const imageElm2 = document.getElementById('image2');
+									imageElm1.src = image;
+									imageElm2.src = image;
+								})
+					
+							</script>
 						</div >
-						<div class="item">
-							
+
+						<!-- video url and name input form -->
+						<div class='video-form'>
+							<!-- user form                                 -->
+							<!-- for registering or deleting the video url -->
+							<form>
+								Video Url:<br>
+								<input type="text" name="video_url"><br>
+								Video name:<br>
+								<input type="text" name="video_name"><br><br>
+								<input type="submit" value="Submit"> 
+								<input type="submit" value="Delete">
+								
+								<!-- javascript logic                      -->
+								<!-- for sending post request to the server-->
+								<script language="JavaScript" type="text/javascript" src="/js/jquery-1.2.6.min.js">
+									$(function() {
+									    $('a#status').bind('click', function() {
+										    $.getJSON('http://192.168.28.200:8005/add_video_url', {
+										    video_url: $('input[name="video_url"]').val(),
+										    video_name: $('input[name="video_name"]').val()
+										    }, function(data) {
+										    $("#result").text(data.result);
+										    });
+										return false;
+									  });
+									});
+								</script>
+								<p><span id=result>?</span>
+							</form>
+
 						</div>
-						<div class="item">
-							
-						</div>
-						<div class="item">
-							
-						</div>
+						<!-- violation Image -->
 						<div class="item">
 							
 						</div>
