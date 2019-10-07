@@ -1,4 +1,5 @@
 ## Kafka
+![](assets/kafka.png)
 
 ### Installing Kafka on 
 - `sudo apt update` and  `sudo apt install default-jdk`
