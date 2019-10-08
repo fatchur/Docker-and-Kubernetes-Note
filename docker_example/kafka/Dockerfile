@@ -13,4 +13,6 @@ RUN wget http://www-us.apache.org/dist/kafka/2.2.1/kafka_2.12-2.2.1.tgz
 RUN tar -xzf kafka_2.12-2.2.1.tgz 
 RUN mv kafka_2.12-2.2.1 $KAFKA_HOME
 
-CMD ["/scripts/start-kafka.sh"]
+WORKDIR /scripts
+EXPOSE 2181 9092
+CMD ["/scripts/start-kafka.sh"] 

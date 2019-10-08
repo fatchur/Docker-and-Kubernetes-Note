@@ -98,6 +98,9 @@ Example of consuming message:
         print (message)
 ```
 
+## Running Kafka Docker
+`sudo docker run --name <container name> -d -p 9092:9092 -p 2181:2181 --network=host <image name>:<tag>`
+
 
 
 
