@@ -1,6 +1,7 @@
 from kafka import KafkaConsumer
 from json import loads
 
+
 consumer = KafkaConsumer('ai_topic',
                         bootstrap_servers=['localhost:9092'],
                         auto_offset_reset='earliest',

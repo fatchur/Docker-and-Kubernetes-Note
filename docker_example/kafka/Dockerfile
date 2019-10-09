@@ -15,4 +15,4 @@ RUN mv kafka_2.12-2.2.1 $KAFKA_HOME
 
 WORKDIR /scripts
 EXPOSE 2181 9092
-CMD ["/scripts/start-kafka.sh"] 
+CMD ["bash", "start-kafka.sh"] 
