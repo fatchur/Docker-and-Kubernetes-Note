@@ -1,0 +1,10 @@
+redis
+flask
+numpy
+gevent
+gunicorn
+kafka-python
+opencv-python
+flaks-socketio
+
+

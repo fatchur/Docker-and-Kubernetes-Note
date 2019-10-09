@@ -1,9 +1,0 @@
-flask
-flaks-socketio
-gunicorn
-gevent
-opencv-python
-numpy
-flask-script
-redis
-
