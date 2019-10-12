@@ -99,7 +99,7 @@
 							<!-- send and get the data from server -->
 							<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js'></script>
 							<script>
-								const socket = io.connect('http://192.168.28.200:8005');
+								const socket = io.connect('http://192.168.31.200:8005');
 								
 								socket.on('connect', function() {
 									socket.emit( 'url', {
@@ -109,8 +109,18 @@
 								socket.on('video_frame', (image) =>{
 									const imageElm1 = document.getElementById('image1');
 									const imageElm2 = document.getElementById('image2');
-									imageElm1.src = image;
-									imageElm2.src = image;
+
+									var obj = JSON.parse(image);
+									// console.log(obj[0])
+
+									for(var o in obj[0]) {
+										imageElm1.src = obj[0][o];}
+
+									for(var o in obj[1]) {
+										imageElm2.src = obj[1][o];}
+
+									// imageElm1.src = image;
+									// imageElm2.src = image;
 								})
 					
 							</script>

@@ -36,8 +36,8 @@ logging.warning('======= SYSTEM WARMINGUP =========')
 
 
 
-@app.route('/')
-def sessions():
+@app.route('/web')
+def web():
     """ Endpoint for rendering the homepage html
     
     Returns:
@@ -50,12 +50,46 @@ def sessions():
     return render_template('index.html')
 
 
+@app.route('/', methods=['POST'])
+def sessions():
+    """ Endpoint for init first request
+    
+    Returns:
+        [hmtl] -- html webpage
+    """
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+    print ('=============================>>><<<<')
+    return (json.dumps('ok'), 200, headers)
+    
+
 @app.before_first_request
 def before_first_request_func():
     """Method for setting the video status 'video_on' on redis to zero,
        Called when the first user open a homepage for the first time
     """
+    is_streaming_on = int(r.get('video_on'))
+    print (is_streaming_on)
     r.set('video_on', 0)
+    is_streaming_on = int(r.get('video_on'))
+    print (is_streaming_on)
     tm = datetime.datetime.now()
     tm = tm.strftime("%c")
     logging.warning("===>>> B. The data of 'video_on' in redis \
@@ -109,10 +143,6 @@ def add_video_url():
     headers['Access-Control-Allow-Credentials'] = 'true'
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
-    print ('===================================...')
-    print (video_name)
-    print (video_url)
-    print ('===================================...')
     return (json.dumps('ok'), 200, headers)
 
 
@@ -122,38 +152,21 @@ def messageReceived(methods=['GET', 'POST']):
 
 def send_frame(): 
     while(True):
-
         for message in consumer:
             message = message.value
             
             frames = []
             for i in(message):
                 frame = message[i]
-                if frame is not None:
-                    frame = 'data:image/jpeg;base64,' + frame
-                    frames.append(frame)
-
-            if len(frames) > 0:
-                socketio.emit('video_frame', frames[0], \
-                            broadcast=True, callback=messageReceived)
-                time.sleep(0.03)
-
-        '''
-        payload = consumer_receiver.recv()
-        payload = pickle.loads(payload)
-        
-        frames = []
-        for idx, i in enumerate(payload):
-            if idx==0 and payload[i] is not None: 
-                frame = base64.b64encode(payload[i]).decode()
                 frame = 'data:image/jpeg;base64,' + frame
-                frames.append(frame)
-        
-        if len(frames) > 0:
-            socketio.emit('video_frame', frames[0], \
-                          broadcast=True, callback=messageReceived)
-            time.sleep(0.05)
-        '''
+                frames.append({"id": i, "key": frame})
+            
+            if len(frames) > 0:
+                frames = json.dumps(frames)
+                #print (frames)
+                socketio.emit('video_frame', frames, \
+                            broadcast=True, callback=messageReceived)
+                time.sleep(0.04)
 
 
 @socketio.on('url')

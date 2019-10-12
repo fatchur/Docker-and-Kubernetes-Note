@@ -24,10 +24,14 @@ camera_dict = {}
 cap_dict = {}
 camera_name_connectionproblem = []
 camera_name_encodeproblem  = []
+EXTENSion_LIST = ['mp4', 'avi', ]
 
-IMG_INVALID_URL = cv2.imread('assets/invalid_url.jpg')
-IMG_CONNECTION_ERROR = cv2.imread('assets/connection_error.jpg')
-IMG_ENCODE_ERROR = cv2.imread('assets/encode_error.jpg')
+IMG_INVALID_URL = cv2.imread('assets/invalid_url200.jpg')
+IMG_CONNECTION_ERROR = cv2.imread('assets/connection_error200.jpg')
+IMG_ENCODE_ERROR = cv2.imread('assets/encode_error200.jpg')
+IMG_INVALID_URL = cv2.imencode('.jpg', IMG_INVALID_URL)[1]
+IMG_CONNECTION_ERROR = cv2.imencode('.jpg', IMG_CONNECTION_ERROR)[1]
+IMG_ENCODE_ERROR = cv2.imencode('.jpg', IMG_ENCODE_ERROR)[1]
 
 
 def update_camera_dict():
@@ -74,9 +78,11 @@ def reconnect(camera_name):
     Arguments:
         camera_name {bytes} -- the name of the camera
     """
-    cap_dict[camera_name].release()
-    cap_dict[camera_name] = cv2.VideoCapture(camera_dict[camera_name].decode("utf-8"))
-    print ('===>>> reconnect')
+    try:
+        cap_dict[camera_name].release()
+        cap_dict[camera_name] = cv2.VideoCapture(camera_dict[camera_name].decode("utf-8"))
+    except: 
+        pass
 
 
 def stream():
@@ -99,10 +105,7 @@ def stream():
 
         new_camera = get_new_camera(old_camera_namelist, new_camera_namelist)
         for i in new_camera: 
-            try: 
-                cap_dict[i] = cv2.VideoCapture(camera_dict[i].decode("utf-8"))
-            except: 
-                cap_dict[i] = None
+            cap_dict[i] = cv2.VideoCapture(camera_dict[i].decode("utf-8"))
         
         #print ('cap dict', cap_dict)
         #print ('camera dict', camera_dict)
@@ -126,11 +129,8 @@ def stream():
             # ---------------------------------- #
             for name in cap_dict:
                 camera_frame[name] = {}
-                if cap_dict[name] is not None:
-                    camera_frame[name]['ret'], camera_frame[name]['frame'] = cap_dict[name].read()
-                else: 
-                    camera_frame[name]['ret'], camera_frame[name]['frame'] = IMG_INVALID_URL, True
-            
+                camera_frame[name]['ret'], camera_frame[name]['frame'] = cap_dict[name].read()
+
             # ---------------------------------- #
             # zmq payload preparation            #
             # check the connection status        #
@@ -139,7 +139,7 @@ def stream():
             for name in camera_frame: 
                 if camera_frame[name]['ret'] == True: 
                     img = camera_frame[name]['frame']
-                    img = cv2.resize(img, (570, 420))
+                    img = cv2.resize(img, (200, 200))
                     jpg_success, img = cv2.imencode('.jpg', img)
 
                     if jpg_success:
@@ -152,7 +152,7 @@ def stream():
                     transferred_data[name.decode("utf-8")] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
                     if name not in camera_name_connectionproblem: 
                         camera_name_connectionproblem.append(name.decode("utf-8"))
-                        reconnect(name)
+                    reconnect(name)
 
             # ---------------------------------- #
             # transmit data via kafka            #
