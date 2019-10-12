@@ -25,6 +25,10 @@ cap_dict = {}
 camera_name_connectionproblem = []
 camera_name_encodeproblem  = []
 
+IMG_INVALID_URL = cv2.imread('assets/invalid_url.jpg')
+IMG_CONNECTION_ERROR = cv2.imread('assets/connection_error.jpg')
+IMG_ENCODE_ERROR = cv2.imread('assets/encode_error.jpg')
+
 
 def update_camera_dict():
     """Functioin for update the camera url from redis
@@ -95,7 +99,10 @@ def stream():
 
         new_camera = get_new_camera(old_camera_namelist, new_camera_namelist)
         for i in new_camera: 
-            cap_dict[i] = cv2.VideoCapture(camera_dict[i].decode("utf-8"))
+            try: 
+                cap_dict[i] = cv2.VideoCapture(camera_dict[i].decode("utf-8"))
+            except: 
+                cap_dict[i] = None
         
         #print ('cap dict', cap_dict)
         #print ('camera dict', camera_dict)
@@ -119,7 +126,10 @@ def stream():
             # ---------------------------------- #
             for name in cap_dict:
                 camera_frame[name] = {}
-                camera_frame[name]['ret'], camera_frame[name]['frame'] = cap_dict[name].read()
+                if cap_dict[name] is not None:
+                    camera_frame[name]['ret'], camera_frame[name]['frame'] = cap_dict[name].read()
+                else: 
+                    camera_frame[name]['ret'], camera_frame[name]['frame'] = IMG_INVALID_URL, True
             
             # ---------------------------------- #
             # zmq payload preparation            #
@@ -135,11 +145,11 @@ def stream():
                     if jpg_success:
                         transferred_data[name.decode("utf-8")] = base64.b64encode(img).decode()
                     else: 
-                        transferred_data[name.decode("utf-8")] = None
+                        transferred_data[name.decode("utf-8")] = base64.b64encode(IMG_ENCODE_ERROR).decode()
                         camera_name_encodeproblem.append(name.decode("utf-8"))
 
                 else: 
-                    transferred_data[name.decode("utf-8")] = None
+                    transferred_data[name.decode("utf-8")] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
                     if name not in camera_name_connectionproblem: 
                         camera_name_connectionproblem.append(name.decode("utf-8"))
                         reconnect(name)
