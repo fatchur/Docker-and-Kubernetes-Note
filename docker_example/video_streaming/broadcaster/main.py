@@ -98,7 +98,6 @@ def before_first_request_func():
 
 @app.route('/add_video_url', methods=['POST'])
 def add_video_url():
-    print('>>>>>>>>>>>')
     """Method for adding camera url
     
     Returns:
@@ -146,6 +145,106 @@ def add_video_url():
     return (json.dumps('ok'), 200, headers)
 
 
+@app.route('/delete_video_url', methods=['POST'])
+def delete_video_url():
+    print('>>>>>>>>>>>')
+    """Method for adding camera url
+    
+    Returns:
+        [type] -- [description]
+    """
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------------- #
+    # 1. redis video_dict: video_dictionary
+    # 1.1 video_dict = {'video_name1': 'url', ...}
+    # ---------------------------------- #
+    video_dict = r.hgetall("video_dict")
+    json_data = request.get_json()
+    video_name = json_data.get('video_name', None)
+    #video_url = json_data.get('video_url', None)
+
+    # ---------------------------------- #
+    # try to register the new camera url #
+    # ---------------------------------- #
+    if len(list(video_dict.keys())) == 0:
+        video_dict = {}
+        video_dict[video_name] = video_url
+        r.hmset("video_dict", video_dict)
+    else:
+        r.hdel('video_dict', video_name)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+    return (json.dumps('ok'), 200, headers)
+
+
+@app.route('/edit_video_url', methods=['POST'])
+def edit_video_url():
+    print('>>>>>>>>>>>')
+    """Method for adding camera url
+    
+    Returns:
+        [type] -- [description]
+    """
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------------- #
+    # 1. redis video_dict: video_dictionary
+    # 1.1 video_dict = {'video_name1': 'url', ...}
+    # ---------------------------------- #
+    video_dict = r.hgetall("video_dict")
+    json_data = request.get_json()
+    video_name = json_data.get('video_name', None)
+    video_url = json_data.get('video_url', None)
+
+    # ---------------------------------- #
+    # try to register the new camera url #
+    # ---------------------------------- #
+    if len(list(video_dict.keys())) == 0:
+        video_dict = {}
+        video_dict[video_name] = video_url
+        r.hmset("video_dict", video_dict)
+    else:
+        r.hdel('video_dict', video_name)
+        video_dict[video_name] = video_url 
+        r.hmset("video_dict", video_dict)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+    return (json.dumps('ok'), 200, headers)
+
+
 def messageReceived(methods=['GET', 'POST']):
     a = 0
 
@@ -171,9 +270,7 @@ def send_frame():
 
 @socketio.on('url')
 def streamer(video_url, methods=['GET', 'POST']):
-    print ('------------------')
-    print ('new client')
-    print ('------------------')
+    print ('===>>> INFO: new client')
 
     is_streaming_on = int(r.get('video_on'))
     if is_streaming_on == 1:
@@ -181,7 +278,7 @@ def streamer(video_url, methods=['GET', 'POST']):
         pass 
     else:
         r.set('video_on', 1)
-        print ('=====>>> called')
+        print ('===>>> INFO: Socket broadcaster started')
         send_frame()
 
 
