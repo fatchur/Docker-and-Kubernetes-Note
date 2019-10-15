@@ -1,7 +1,7 @@
 import cv2 
 import time
+import json
 import redis 
-import pickle
 import base64
 import numpy as np 
 from json import dumps
@@ -38,10 +38,12 @@ def update_camera_dict():
     """
     global camera_dict
     camera_dict = r.hgetall("video_dict")
+    for i in camera_dict: 
+        camera_dict[i] = json.loads(camera_dict[i].decode("utf-8"))
 
 
-def get_deleted_camera(old_camera_namelist, 
-                       new_camera_namelist):
+def get_deleted_camera(old_camera_idlist, 
+                       new_camera_idlist):
     """Function for getting the deleted camera names
     
     Arguments:
@@ -51,12 +53,12 @@ def get_deleted_camera(old_camera_namelist,
     Returns:
         [list of str] -- the list of deleted camera names 
     """
-    deleted = [x for x in old_camera_namelist if x not in new_camera_namelist]
+    deleted = [x for x in old_camera_idlist if x not in new_camera_idlist]
     return deleted
 
 
-def get_new_camera(old_camera_namelist, 
-                   new_camera_namelist):
+def get_new_camera(old_camera_idlist, 
+                   new_camera_idlist):
     """Function for getting the new camera names
     
     Arguments:
@@ -66,7 +68,7 @@ def get_new_camera(old_camera_namelist,
     Returns:
         [list of str] -- the list of new camera names 
     """
-    new_camera = [x for x in new_camera_namelist if x not in old_camera_namelist]
+    new_camera = [x for x in new_camera_idlist if x not in old_camera_idlist]
     return new_camera
 
 
@@ -78,19 +80,20 @@ def get_edited_camera(old_camera_dict):
     """
     edited = []
     for i in old_camera_dict: 
-        old_url = old_camera_dict[i]
+        old_url = old_camera_dict[i]['video_url']
         # ---------------------------------- #
         # TRY if the camera name was not deleted
         # ---------------------------------- #
         try:
-            new_url = camera_dict[i]
+            new_url = camera_dict[i]['video_url']
             if old_url != new_url: 
                 edited.append(i)
         except: 
             pass 
+    return edited
 
 
-def reconnect(camera_name):
+def reconnect(cam_id):
     """The method to release and recreate new opencv videocapture 
        of the disconnected cameras 
     
@@ -100,8 +103,8 @@ def reconnect(camera_name):
     global camera_dict, cap_dict
 
     try:
-        cap_dict[camera_name].release()
-        cap_dict[camera_name] = cv2.VideoCapture(camera_dict[camera_name].decode("utf-8"))
+        cap_dict[cam_id].release()
+        cap_dict[cam_id] = cv2.VideoCapture(camera_dict[cam_id]['video_url'])
     except: 
         pass
 
@@ -116,32 +119,32 @@ def stream():
         # - add the new inserted cameras     #
         # - update the edited camera url     #
         # ---------------------------------- #
-        old_camera_namelist = list(camera_dict.keys())
+        old_camera_idlist = list(camera_dict.keys())
         old_camera_dict = camera_dict.copy()
         update_camera_dict()
-        new_camera_namelist = list(camera_dict.keys())
+        new_camera_idlist = list(camera_dict.keys())
 
-        deleted_camera = get_deleted_camera(old_camera_namelist, new_camera_namelist)
+        deleted_camera = get_deleted_camera(old_camera_idlist, new_camera_idlist)
         for i in deleted_camera: 
             cap_dict[i].release()
             del cap_dict[i]
 
-        new_camera = get_new_camera(old_camera_namelist, new_camera_namelist)
+        new_camera = get_new_camera(old_camera_idlist, new_camera_idlist)
         for i in new_camera: 
-            cap_dict[i] = cv2.VideoCapture(camera_dict[i].decode("utf-8"))
+            cap_dict[i] = cv2.VideoCapture(camera_dict[i]['video_url'])
 
         edited_camera = get_edited_camera(old_camera_dict)
         for i in edited_camera: 
             cap_dict[i].release()
-            cap_dict[i] = cv2.VideoCapture(camera_dict[i].decode("utf-8"))
+            cap_dict[i] = cv2.VideoCapture(camera_dict[i]['video_url'])
 
         # ---------------------------------- #
         # list for capturing the:            #
         # connection and encoding problems   #
         # for each 10 iterations             #
         # ---------------------------------- #
-        camera_name_connectionproblem = []
-        camera_name_encodeproblem = []
+        camera_id_connectionproblem = []
+        camera_id_encodeproblem = []
 
         for i in range(10):
             transferred_data = {}
@@ -152,31 +155,31 @@ def stream():
             # get the image frame                #
             # store it in camera_frame dictionary#
             # ---------------------------------- #
-            for name in cap_dict:
-                camera_frame[name] = {}
-                camera_frame[name]['ret'], camera_frame[name]['frame'] = cap_dict[name].read()
+            for cam_id in cap_dict:
+                camera_frame[cam_id] = {}
+                camera_frame[cam_id]['ret'], camera_frame[cam_id]['frame'] = cap_dict[cam_id].read()
 
             # ---------------------------------- #
-            # kafka payload preparation            #
+            # kafka payload preparation          #
             # check the connection status        #
             # check the encoding process         #
             # ---------------------------------- #
-            for name in camera_frame: 
-                if camera_frame[name]['ret'] == True: 
-                    img = camera_frame[name]['frame']
+            for cam_id in camera_frame: 
+                if camera_frame[cam_id]['ret'] == True: 
+                    img = camera_frame[cam_id]['frame']
                     img = cv2.resize(img, (200, 200))
                     jpg_success, img = cv2.imencode('.jpg', img)
 
                     if jpg_success:
-                        transferred_data[name.decode("utf-8")] = base64.b64encode(img).decode()
+                        transferred_data[cam_id.decode("utf-8")] = base64.b64encode(img).decode()
                     else: 
-                        transferred_data[name.decode("utf-8")] = base64.b64encode(IMG_ENCODE_ERROR).decode()
-                        camera_name_encodeproblem.append(name)
+                        transferred_data[cam_id.decode("utf-8")] = base64.b64encode(IMG_ENCODE_ERROR).decode()
+                        camera_name_encodeproblem.append(cam_id)
 
                 else: 
-                    transferred_data[name.decode("utf-8")] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
-                    if name not in camera_name_connectionproblem: 
-                        camera_name_connectionproblem.append(name)
+                    transferred_data[cam_id.decode("utf-8")] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
+                    if cam_id not in camera_id_connectionproblem: 
+                        camera_id_connectionproblem.append(cam_id)
 
             # ---------------------------------- #
             # transmit data via kafka            #
@@ -187,7 +190,7 @@ def stream():
         # ---------------------------------- #
         # reconnect the camera               #
         # ---------------------------------- #
-        for i in camera_name_connectionproblem:        
+        for i in camera_id_connectionproblem:        
             reconnect(i)
 
 

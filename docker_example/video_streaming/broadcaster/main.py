@@ -1,14 +1,15 @@
 import cv2
+import uuid
 import time
 import json
 import redis
-import pickle
 import base64
 import datetime
 import logging
 from kafka import KafkaConsumer
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
+from flask_cors import CORS
 
 
 # ---------------------------------- #
@@ -26,6 +27,7 @@ consumer = KafkaConsumer('ai_topic',
 # ---------------------------------- #
 r = redis.Redis(host='localhost', port=6379, db=0, charset="utf-8")
 app = Flask(__name__)
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 # ---------------------------------- #
 # logging setup                      #
@@ -103,6 +105,7 @@ def add_video_url():
     Returns:
         [type] -- [description]
     """
+    print ('INFO: add_video_url')
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
@@ -121,17 +124,20 @@ def add_video_url():
     json_data = request.get_json()
     video_name = json_data.get('video_name', None)
     video_url = json_data.get('video_url', None)
-
+    print (video_dict)
+    print (video_name)
+    print (video_url)
     # ---------------------------------- #
-    # try to register the new camera url #
+    # try to add the new camera url #
     # ---------------------------------- #
-    if len(list(video_dict.keys())) == 0:
-        video_dict = {}
-        video_dict[video_name] = video_url
-        r.hmset("video_dict", video_dict)
-    else:
-        video_dict[video_name] = video_url
-        r.hmset("video_dict", video_dict)
+    video_id = str(uuid.uuid1())
+    add_time = str(datetime.datetime.now())
+    json_data = {}
+    json_data['video_name'] = video_name
+    json_data['video_url'] = video_url
+    json_data['video_created'] = add_time
+    video_dict[video_id] = json.dumps(json_data)
+    r.hmset("video_dict", video_dict)
 
     # ---------------------------- #
     # Set response header          #
@@ -145,21 +151,21 @@ def add_video_url():
     return (json.dumps('ok'), 200, headers)
 
 
-@app.route('/delete_video_url', methods=['POST'])
+@app.route('/delete_video_url', methods=['DELETE'])
 def delete_video_url():
-    print('>>>>>>>>>>>')
     """Method for adding camera url
     
     Returns:
         [type] -- [description]
     """
+    print ('INFO: delete_video_url')
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
     if request.method == 'OPTIONS':
         headers = {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Methods': 'DELETE',
             'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
         return ('', 204, headers)
 
@@ -169,46 +175,40 @@ def delete_video_url():
     # ---------------------------------- #
     video_dict = r.hgetall("video_dict")
     json_data = request.get_json()
-    video_name = json_data.get('video_name', None)
-    #video_url = json_data.get('video_url', None)
+    video_id = json_data.get('id', None)
 
     # ---------------------------------- #
-    # try to register the new camera url #
+    # try to delete the camera url       #
     # ---------------------------------- #
-    if len(list(video_dict.keys())) == 0:
-        video_dict = {}
-        video_dict[video_name] = video_url
-        r.hmset("video_dict", video_dict)
-    else:
-        r.hdel('video_dict', video_name)
+    r.hdel('video_dict', video_id)
 
     # ---------------------------- #
     # Set response header          #
     # ---------------------------- #
     headers = {}
     headers['Access-Control-Allow-Origin'] = '*'
-    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
+    headers['Access-Control-Allow-Methods'] = 'OPTIONS, DELETE'
     headers['Access-Control-Allow-Credentials'] = 'true'
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
     return (json.dumps('ok'), 200, headers)
 
 
-@app.route('/edit_video_url', methods=['POST'])
+@app.route('/edit_video_url', methods=['PUT'])
 def edit_video_url():
-    print('>>>>>>>>>>>')
     """Method for adding camera url
     
     Returns:
         [type] -- [description]
     """
+    print ('INFO: edit_video_url')
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
     if request.method == 'OPTIONS':
         headers = {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Methods': 'PUT',
             'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
         return ('', 204, headers)
 
@@ -220,29 +220,73 @@ def edit_video_url():
     json_data = request.get_json()
     video_name = json_data.get('video_name', None)
     video_url = json_data.get('video_url', None)
+    video_id = json_data.get('id', None)
 
     # ---------------------------------- #
     # try to register the new camera url #
     # ---------------------------------- #
-    if len(list(video_dict.keys())) == 0:
-        video_dict = {}
-        video_dict[video_name] = video_url
-        r.hmset("video_dict", video_dict)
-    else:
-        r.hdel('video_dict', video_name)
-        video_dict[video_name] = video_url 
-        r.hmset("video_dict", video_dict)
+    json_data = json.loads(video_dict[video_id.encode("utf-8")].decode("utf-8"))
+    add_time = json_data['video_created']
+    r.hdel('video_dict', video_id)
+    update_time = str(datetime.datetime.now())
+    json_data = {}
+    json_data['video_name'] = video_name
+    json_data['video_url'] = video_url
+    json_data['video_created'] = add_time
+    json_data['video_updated'] = update_time
+    video_dict[video_id.encode('utf-8')] = json.dumps(json_data)
+    r.hmset("video_dict", video_dict)
 
     # ---------------------------- #
     # Set response header          #
     # ---------------------------- #
     headers = {}
     headers['Access-Control-Allow-Origin'] = '*'
-    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
+    headers['Access-Control-Allow-Methods'] = 'OPTIONS, PUT'
     headers['Access-Control-Allow-Credentials'] = 'true'
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
     return (json.dumps('ok'), 200, headers)
+
+
+@app.route('/get_video_list', methods=['GET'])
+def get_video_list(): 
+    print ('INFO: get_video_list')
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    video_dict = r.hgetall("video_dict")
+    tmp_list = []
+    print (video_dict)
+    for i in video_dict:
+        tmp = {}
+        tmp['id'] = i.decode("utf-8")
+        json_data = json.loads(video_dict[i].decode("utf-8"))
+        tmp['video_name'] = json_data['video_name']
+        tmp['video_url'] = json_data['video_url']
+        tmp['date'] = json_data['video_created']
+        tmp_list.append(tmp)
+    
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'OPTIONS, GET'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+    return (json.dumps(tmp_list), 200, headers)
 
 
 def messageReceived(methods=['GET', 'POST']):
@@ -265,7 +309,7 @@ def send_frame():
                 #print (frames)
                 socketio.emit('video_frame', frames, \
                             broadcast=True, callback=messageReceived)
-                time.sleep(0.04)
+                time.sleep(0.1)
 
 
 @socketio.on('url')
