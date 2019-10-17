@@ -1,37 +1,36 @@
-version: '3'
-
+version: '3.4'
 
 services:
-  kafka_deploy:
-    image: "kafka_deploy:v0"
-    ports:
-      - "8006:8006"
-      - "9092:9092"
-      - "2181:2181"
-    netwok: host
+  #kafka_deploy:
+  #  image: "kafka_deploy:v0"
+  #  ports:
+  #    - "8006:8006"
+  #    - "9092:9092"
+  #    - "2181:2181"
+  #  network_mode: "host"
 
   redis_deploy:
-    image: "redio1804:v0"
+    image: "redis1804:v0"
     ports:
       - "6379:6379"
-    #volumes:
-    #  - ./ai/result_image:/home/result_image
 
   streamer_deploy: 
     image: "streamer:v0"
     ports:
-      - "5001:5001"
-    network: host
+      - "8001:8001"
+    network_mode: "host"
     depends_on:
-      - "kafka_deploy"
+      #- "kafka_deploy"
       - "redis_deploy"
 
   broadcaster_deploy:
-    image:"broadcaster:v0"
+    image: "broadcaster:v0"
     ports:
-      - "5005:5005"
-    network: host
+      - "8005:8005"
+    network_mode: "host"
     depends_on:
-      - "kafka_deploy"
+      #- "kafka_deploy"
       - "redis_deploy"
       - "streamer_deploy"
+    #volumes:
+    #  - ./ai/result_image:/home/result_image

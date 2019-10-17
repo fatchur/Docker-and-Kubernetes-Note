@@ -16,7 +16,7 @@ from flask_cors import CORS
 # setting kafka consumer             #
 # ---------------------------------- #
 consumer = KafkaConsumer('ai_topic',
-                        bootstrap_servers=['localhost:9092'],
+                        bootstrap_servers=['0.0.0.0:9092'],
                         auto_offset_reset='earliest',
                         enable_auto_commit=True,
                         group_id='my-group',
@@ -87,11 +87,21 @@ def before_first_request_func():
     """Method for setting the video status 'video_on' on redis to zero,
        Called when the first user open a homepage for the first time
     """
-    is_streaming_on = int(r.get('video_on'))
-    print (is_streaming_on)
-    r.set('video_on', 0)
-    is_streaming_on = int(r.get('video_on'))
-    print (is_streaming_on)
+    video_cond = r.get('video_on')
+    print (video_cond)
+    # ---------------------------------- #
+    # The first request of the first user#
+    # Set the 'video_on' to zero         #
+    # so when the user socket connected, #
+    # the streaming will begin           #
+    # ---------------------------------- #
+    if video_cond is not None: 
+        video_cond = int(video_cond)
+    elif video_cond==None or video_cond==1:
+        r.set('video_on', 0)
+
+    video_cond = r.get('video_on')
+    print (video_cond)
     tm = datetime.datetime.now()
     tm = tm.strftime("%c")
     logging.warning("===>>> B. The data of 'video_on' in redis \
@@ -315,8 +325,12 @@ def send_frame():
 @socketio.on('url')
 def streamer(video_url, methods=['GET', 'POST']):
     print ('===>>> INFO: new client')
+    
+    try:
+        is_streaming_on = int(r.get('video_on'))
+    except: 
+        is_streaming_on = 1
 
-    is_streaming_on = int(r.get('video_on'))
     if is_streaming_on == 1:
         print ('the sreaming is alredy live')
         pass 
