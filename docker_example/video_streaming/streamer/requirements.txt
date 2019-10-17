@@ -1,4 +1,5 @@
 redis
 numpy
+gunicorn
 kafka-python
 opencv-python 

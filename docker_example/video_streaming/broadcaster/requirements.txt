@@ -5,6 +5,7 @@ gevent
 gunicorn
 kafka-python
 opencv-python
-flaks-socketio
+flask-socketio
+flask-cors
 
 
