@@ -1,0 +1,37 @@
+version: '3'
+
+
+services:
+  kafka_deploy:
+    image: "kafka_deploy:v0"
+    ports:
+      - "8006:8006"
+      - "9092:9092"
+      - "2181:2181"
+    netwok: host
+
+  redis_deploy:
+    image: "redio1804:v0"
+    ports:
+      - "6379:6379"
+    #volumes:
+    #  - ./ai/result_image:/home/result_image
+
+  streamer_deploy: 
+    image: "streamer:v0"
+    ports:
+      - "5001:5001"
+    network: host
+    depends_on:
+      - "kafka_deploy"
+      - "redis_deploy"
+
+  broadcaster_deploy:
+    image:"broadcaster:v0"
+    ports:
+      - "5005:5005"
+    network: host
+    depends_on:
+      - "kafka_deploy"
+      - "redis_deploy"
+      - "streamer_deploy"
