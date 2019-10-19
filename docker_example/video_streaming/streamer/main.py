@@ -191,13 +191,19 @@ def stream():
                     jpg_success, img = cv2.imencode('.jpg', img)
 
                     if jpg_success:
-                        transferred_data[cam_id.decode("utf-8")] = base64.b64encode(img).decode()
+                        transferred_data[cam_id.decode("utf-8")] = {}
+                        transferred_data[cam_id.decode("utf-8")]["b64"] = base64.b64encode(img).decode()
+                        transferred_data[cam_id.decode("utf-8")]["success"] = True
                     else: 
-                        transferred_data[cam_id.decode("utf-8")] = base64.b64encode(IMG_ENCODE_ERROR).decode()
+                        transferred_data[cam_id.decode("utf-8")] = {}
+                        transferred_data[cam_id.decode("utf-8")]["b64"] = base64.b64encode(IMG_ENCODE_ERROR).decode()
+                        transferred_data[cam_id.decode("utf-8")]["success"] = False
                         camera_name_encodeproblem.append(cam_id)
 
                 else: 
-                    transferred_data[cam_id.decode("utf-8")] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
+                    transferred_data[cam_id.decode("utf-8")] = {}
+                    transferred_data[cam_id.decode("utf-8")]["b64"] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
+                    transferred_data[cam_id.decode("utf-8")]["success"] = False
                     if cam_id not in camera_id_connectionproblem: 
                         camera_id_connectionproblem.append(cam_id)
 

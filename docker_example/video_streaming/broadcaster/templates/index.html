@@ -99,7 +99,7 @@
 							<!-- send and get the data from server -->
 							<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js'></script>
 							<script>
-								const socket = io.connect('http://192.168.28.200:8005');
+								const socket = io.connect('http://192.168.31.200:8005');
 								
 								socket.on('connect', function() {
 									socket.emit( 'url', {
@@ -115,10 +115,10 @@
 
 									for(var o in obj[0]) {
 										console.log(o)
-										imageElm1.src = obj[0][o];}
+										imageElm1.src = obj[0]["key"];}
 
 									for(var o in obj[1]) {
-										imageElm2.src = obj[1][o];}
+										imageElm2.src = obj[1]["key"];}
 								})
 					
 							</script>

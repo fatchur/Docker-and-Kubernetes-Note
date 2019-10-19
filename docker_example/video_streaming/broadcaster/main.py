@@ -134,9 +134,7 @@ def add_video_url():
     json_data = request.get_json()
     video_name = json_data.get('video_name', None)
     video_url = json_data.get('video_url', None)
-    print (video_dict)
-    print (video_name)
-    print (video_url)
+
     # ---------------------------------- #
     # try to add the new camera url #
     # ---------------------------------- #
@@ -168,7 +166,7 @@ def delete_video_url():
     Returns:
         [type] -- [description]
     """
-    print ('INFO: delete_video_url')
+    logging.warning("====>>: DELETE REQUEST")
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
@@ -178,20 +176,7 @@ def delete_video_url():
             'Access-Control-Allow-Methods': 'DELETE',
             'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
         return ('', 204, headers)
-
-    # ---------------------------------- #
-    # 1. redis video_dict: video_dictionary
-    # 1.1 video_dict = {'video_name1': 'url', ...}
-    # ---------------------------------- #
-    video_dict = r.hgetall("video_dict")
-    json_data = request.get_json()
-    video_id = json_data.get('id', None)
-
-    # ---------------------------------- #
-    # try to delete the camera url       #
-    # ---------------------------------- #
-    r.hdel('video_dict', video_id)
-
+    
     # ---------------------------- #
     # Set response header          #
     # ---------------------------- #
@@ -201,7 +186,26 @@ def delete_video_url():
     headers['Access-Control-Allow-Credentials'] = 'true'
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
-    return (json.dumps('ok'), 200, headers)
+
+    try: 
+        # ---------------------------------- #
+        # 1. redis video_dict: video_dictionary
+        # 1.1 video_dict = {'video_name1': 'url', ...}
+        # ---------------------------------- #
+        video_dict = r.hgetall("video_dict")
+        #json_data = request.get_json()
+        video_id = request.args.get("id") #json_data.get('id', None)
+
+        # ---------------------------------- #
+        # try to delete the camera url       #
+        # ---------------------------------- #
+        r.hdel('video_dict', video_id)
+        return (json.dumps('ok'), 200, headers)
+
+    except Exception as e: 
+        logging.warning("====>>: DELETE ERROR: " + str(e))
+        return (json.dumps('ok'), 400, headers)
+
 
 
 @app.route('/edit_video_url', methods=['PUT'])
@@ -211,7 +215,7 @@ def edit_video_url():
     Returns:
         [type] -- [description]
     """
-    print ('INFO: edit_video_url')
+    logging.warning("====>>: EDIT REQUEST")
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
@@ -222,31 +226,6 @@ def edit_video_url():
             'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
         return ('', 204, headers)
 
-    # ---------------------------------- #
-    # 1. redis video_dict: video_dictionary
-    # 1.1 video_dict = {'video_name1': 'url', ...}
-    # ---------------------------------- #
-    video_dict = r.hgetall("video_dict")
-    json_data = request.get_json()
-    video_name = json_data.get('video_name', None)
-    video_url = json_data.get('video_url', None)
-    video_id = json_data.get('id', None)
-
-    # ---------------------------------- #
-    # try to register the new camera url #
-    # ---------------------------------- #
-    json_data = json.loads(video_dict[video_id.encode("utf-8")].decode("utf-8"))
-    add_time = json_data['video_created']
-    r.hdel('video_dict', video_id)
-    update_time = str(datetime.datetime.now())
-    json_data = {}
-    json_data['video_name'] = video_name
-    json_data['video_url'] = video_url
-    json_data['video_created'] = add_time
-    json_data['video_updated'] = update_time
-    video_dict[video_id.encode('utf-8')] = json.dumps(json_data)
-    r.hmset("video_dict", video_dict)
-
     # ---------------------------- #
     # Set response header          #
     # ---------------------------- #
@@ -256,7 +235,39 @@ def edit_video_url():
     headers['Access-Control-Allow-Credentials'] = 'true'
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
-    return (json.dumps('ok'), 200, headers)
+
+    try: 
+        # ---------------------------------- #
+        # 1. redis video_dict: video_dictionary
+        # 1.1 video_dict = {'video_name1': 'url', ...}
+        # ---------------------------------- #
+        video_dict = r.hgetall("video_dict")
+        json_data = request.get_json()
+        video_name = json_data.get('video_name', None)
+        video_url = json_data.get('video_url', None)
+        video_id = json_data.get('id', None)
+
+        # ---------------------------------- #
+        # try to register the new camera url #
+        # ---------------------------------- #
+        json_data = json.loads(video_dict[video_id.encode("utf-8")].decode("utf-8"))
+        add_time = json_data['video_created']
+        r.hdel('video_dict', video_id)
+        update_time = str(datetime.datetime.now())
+        json_data = {}
+        json_data['video_name'] = video_name
+        json_data['video_url'] = video_url
+        json_data['video_created'] = add_time
+        json_data['video_updated'] = update_time
+        video_dict[video_id.encode('utf-8')] = json.dumps(json_data)
+        r.hmset("video_dict", video_dict)
+        
+        return (json.dumps('ok'), 200, headers)
+    
+    except Exception as e:
+        logging.warning("====>>: EDIT ERROR: " + str(e))
+        return (json.dumps('ok'), 400, headers)
+
 
 
 @app.route('/get_video_list', methods=['GET'])
@@ -277,7 +288,6 @@ def get_video_list():
     # ---------------------------- #
     video_dict = r.hgetall("video_dict")
     tmp_list = []
-    print (video_dict)
     for i in video_dict:
         tmp = {}
         tmp['id'] = i.decode("utf-8")
@@ -285,6 +295,7 @@ def get_video_list():
         tmp['video_name'] = json_data['video_name']
         tmp['video_url'] = json_data['video_url']
         tmp['date'] = json_data['video_created']
+        tmp['status'] = 1
         tmp_list.append(tmp)
     
     # ---------------------------- #
@@ -307,16 +318,21 @@ def send_frame():
     while(True):
         for message in consumer:
             message = message.value
-            
+
             frames = []
             for i in(message):
-                frame = message[i]
-                frame = 'data:image/jpeg;base64,' + frame
+                frame = message[i]["b64"]
+                status = message[i]["success"]
+
+                if status:
+                    frame = 'data:image/jpeg;base64,' + frame
+                else: 
+                    frame = ''
+                    
                 frames.append({"id": i, "key": frame})
             
             if len(frames) > 0:
                 frames = json.dumps(frames)
-                #print (frames)
                 socketio.emit('video_frame', frames, \
                             broadcast=True, callback=messageReceived)
                 time.sleep(0.01)
@@ -324,7 +340,7 @@ def send_frame():
 
 @socketio.on('url')
 def streamer(video_url, methods=['GET', 'POST']):
-    print ('===>>> INFO: new client')
+    logging.warning("====>>: INFO: new client")
     
     try:
         is_streaming_on = int(r.get('video_on'))
@@ -332,11 +348,11 @@ def streamer(video_url, methods=['GET', 'POST']):
         is_streaming_on = 1
 
     if is_streaming_on == 1:
-        print ('the sreaming is alredy live')
+        logging.warning("====>>: INFO: the sreaming is alredy live")
         pass 
     else:
         r.set('video_on', 1)
-        print ('===>>> INFO: Socket broadcaster started')
+        logging.warning("====>>: INFO: Socket broadcaster started")
         send_frame()
 
 
