@@ -19,12 +19,14 @@ services:
     ports:
       - "8001:8001"
     network_mode: "host"
+    volumes:
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/streamer:/home
     depends_on:
       #- "kafka_deploy"
       - "redis_deploy"
 
   broadcaster_deploy:
-    image: "broadcaster:v0"
+    image: "broadcaster2:v0"
     ports:
       - "8005:8005"
     network_mode: "host"
@@ -32,5 +34,5 @@ services:
       #- "kafka_deploy"
       - "redis_deploy"
       - "streamer_deploy"
-    #volumes:
-    #  - ./ai/result_image:/home/result_image
+    volumes:
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/broadcaster:/home

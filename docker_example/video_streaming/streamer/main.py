@@ -3,11 +3,17 @@ import time
 import json
 import redis 
 import base64
+import logging
 import numpy as np 
 from json import dumps
 from kafka import KafkaProducer
 
 
+# ---------------------------------- #
+# python logging setup               #
+# ---------------------------------- #
+logging.basicConfig(filename='/home/pertamina.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+logging.warning('======= SYSTEM WARMINGUP =========')
 # ---------------------------------- #
 # initializing kafka producer        #
 # ---------------------------------- #
@@ -137,6 +143,20 @@ def stream():
         for i in edited_camera: 
             cap_dict[i].release()
             cap_dict[i] = cv2.VideoCapture(camera_dict[i]['video_url'])
+        
+        # ---------------------------------- #
+        # log for camera changing            #
+        # ---------------------------------- #
+        if len(deleted_camera) > 0:
+            logging.warning("========= old cam: ", str(deleted_camera))
+            logging.warning(camera_dict)
+        if len(new_camera) > 0:
+            logging.warning("========= new cam: " + str(new_camera))
+            logging.warning(camera_dict)
+        if len(edited_camera) > 0:
+            logging.warning("========= edited cam: " + str(edited_camera))
+            logging.warning(camera_dict)
+        
 
         # ---------------------------------- #
         # list for capturing the:            #
@@ -185,7 +205,7 @@ def stream():
             # transmit data via kafka            #
             # ---------------------------------- #
             producer.send('ai_topic', value=transferred_data)
-            time.sleep(0.05)
+            time.sleep(0.07)
         
         # ---------------------------------- #
         # reconnect the camera               #

@@ -319,7 +319,7 @@ def send_frame():
                 #print (frames)
                 socketio.emit('video_frame', frames, \
                             broadcast=True, callback=messageReceived)
-                time.sleep(0.1)
+                time.sleep(0.01)
 
 
 @socketio.on('url')
