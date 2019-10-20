@@ -45,10 +45,6 @@ def web():
     Returns:
         [hmtl] -- html webpage
     """
-    tm = datetime.datetime.now()
-    tm = tm.strftime("%c")
-    print ('---------')
-    logging.warning("===>>> A. The main endpoint was requested" + tm)
     return render_template('index.html')
 
 
@@ -78,7 +74,6 @@ def sessions():
     headers['Access-Control-Allow-Credentials'] = 'true'
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
-    print ('=============================>>><<<<')
     return (json.dumps('ok'), 200, headers)
     
 
@@ -101,7 +96,6 @@ def before_first_request_func():
         r.set('video_on', 0)
 
     video_cond = r.get('video_on')
-    print (video_cond)
     tm = datetime.datetime.now()
     tm = tm.strftime("%c")
     logging.warning("===>>> B. The data of 'video_on' in redis \
@@ -134,6 +128,8 @@ def add_video_url():
     json_data = request.get_json()
     video_name = json_data.get('video_name', None)
     video_url = json_data.get('video_url', None)
+    point_y1 = json_data.get('y1', None)
+    point_y2 = json_data.get('y2', None)
 
     # ---------------------------------- #
     # try to add the new camera url #
@@ -146,6 +142,16 @@ def add_video_url():
     json_data['video_created'] = add_time
     video_dict[video_id] = json.dumps(json_data)
     r.hmset("video_dict", video_dict)
+
+    # ---------------------------- #
+    # add line point               #
+    # ---------------------------- #
+    point_dict = {}
+    json_data = {}
+    json_data['y1'] = point_y1
+    json_data['y2'] = point_y2
+    point_dict[video_id] = json.dumps(json_data)
+    r.hmset("point_dict", point_dict)
 
     # ---------------------------- #
     # Set response header          #
@@ -200,6 +206,7 @@ def delete_video_url():
         # try to delete the camera url       #
         # ---------------------------------- #
         r.hdel('video_dict', video_id)
+        r.hdel('point_dict', video_id)
         return (json.dumps('ok'), 200, headers)
 
     except Exception as e: 
@@ -246,6 +253,8 @@ def edit_video_url():
         video_name = json_data.get('video_name', None)
         video_url = json_data.get('video_url', None)
         video_id = json_data.get('id', None)
+        point_y1 = json_data.get('y1', None)
+        point_y2 = json_data.get('y2', None)
 
         # ---------------------------------- #
         # try to register the new camera url #
@@ -261,6 +270,16 @@ def edit_video_url():
         json_data['video_updated'] = update_time
         video_dict[video_id.encode('utf-8')] = json.dumps(json_data)
         r.hmset("video_dict", video_dict)
+
+        # ---------------------------- #
+        # add line point               #
+        # ---------------------------- #
+        point_dict = {}
+        json_data = {}
+        json_data['y1'] = point_y1
+        json_data['y2'] = point_y2
+        point_dict[video_id] = json.dumps(json_data)
+        r.hmset("point_dict", point_dict)
         
         return (json.dumps('ok'), 200, headers)
     
@@ -287,15 +306,20 @@ def get_video_list():
     # Set response header          #
     # ---------------------------- #
     video_dict = r.hgetall("video_dict")
+    point_dict = r.hgetall("point_dict")
     tmp_list = []
+
     for i in video_dict:
         tmp = {}
         tmp['id'] = i.decode("utf-8")
         json_data = json.loads(video_dict[i].decode("utf-8"))
+        json_data_point = json.loads(point_dict[i].decode("utf-8"))
         tmp['video_name'] = json_data['video_name']
         tmp['video_url'] = json_data['video_url']
         tmp['date'] = json_data['video_created']
         tmp['status'] = 1
+        tmp['y1'] = json_data_point['y1']
+        tmp['y2'] = json_data_point['y2']
         tmp_list.append(tmp)
     
     # ---------------------------- #

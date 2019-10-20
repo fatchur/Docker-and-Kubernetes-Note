@@ -99,7 +99,7 @@ def get_item():
     resp = {}
     try: 
         page = request.args.get("page") 
-        num_item = int(request.args.get("item"))
+        num_item = int(request.args.get("limit"))
         
         data = []
         for i in range(num_item): 
@@ -108,7 +108,7 @@ def get_item():
             tmp['camera'] = 'kilang depan'
             tmp['helm'] = 0
             tmp['jacket'] = 0
-            tmp['time'] = str(datetime.datetime.now())
+            tmp['date'] = str(datetime.datetime.now())
             data.append(tmp)
 
         resp['data'] = data
