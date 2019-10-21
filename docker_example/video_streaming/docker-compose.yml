@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.3'
 
 services:
   kafka_deploy:
@@ -36,6 +36,32 @@ services:
       - "kafka_deploy"
       - "redis_deploy"
       - "mysql_deploy"
+    #deploy:
+    #  restart_policy:
+    #    condition: on-failure
+    #    delay: 1s
+    #    max_attempts: 10
+    #    window: 5s
+
+  ai_deploy: 
+    image: "ai:v0"
+    runtime: nvidia
+    ports:
+      - "8002:8002"
+    network_mode: "host"
+    volumes:
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/ai:/home
+    depends_on:
+      - "kafka_deploy"
+      - "redis_deploy"
+      - "mysql_deploy"
+      - "streamer_deploy"
+    #deploy:
+    #  restart_policy:
+    #    condition: on-failure
+    #    delay: 1s
+    #    max_attempts: 10
+    #    window: 5s
 
   broadcaster_deploy:
     image: "broadcaster2:v0"
