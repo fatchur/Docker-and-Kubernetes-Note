@@ -5,22 +5,10 @@ import base64
 import datetime
 import logging 
 import numpy as np 
-from kafka import KafkaConsumer
 from flask import Flask, request
 from flask_cors import CORS
 
 
-# ---------------------------------- #
-# setting kafka consumer             #
-# ---------------------------------- #
-"""
-consumer = KafkaConsumer('cloud_handler_topic',
-                        bootstrap_servers=['0.0.0.0:9092'],
-                        auto_offset_reset='earliest',
-                        enable_auto_commit=True,
-                        group_id='my-group',
-                        value_deserializer=lambda x: json.loads(x.decode('utf-8')))
-"""
 # ---------------------------------- #
 # logging setup                      #
 # ---------------------------------- #
@@ -34,6 +22,34 @@ logging.warning('======= SYSTEM WARMINGUP =========')
 # ---------------------------------- #
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/', methods=['POST'])
+def sessions():
+    """ Endpoint for init first request
+    
+    Returns:
+        [hmtl] -- html webpage
+    """
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+    return (json.dumps('ok'), 200, headers)
 
 
 @app.route('/total_page', methods=['GET'])

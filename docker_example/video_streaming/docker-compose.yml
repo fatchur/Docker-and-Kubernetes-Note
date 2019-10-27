@@ -8,6 +8,7 @@ services:
       - "9092:9092"
       - "2181:2181"
     network_mode: "host"
+    mem_limit: 2000000000
 
   redis_deploy:
     image: "redis1804:v0"
@@ -25,6 +26,18 @@ services:
       - "kafka_deploy"
       - "redis_deploy"
 
+  web_deploy:
+    image: "web:v0"
+    ports:
+      - "8080:8080"
+    network_mode: "host"
+    depends_on:
+      - "kafka_deploy"
+      - "redis_deploy"
+      - "mysql_deploy"
+    volumes:
+      - /media/qoala/New Volume3/ivb-pertamina:/home
+
   streamer_deploy: 
     image: "streamer:v0"
     ports:
@@ -36,12 +49,7 @@ services:
       - "kafka_deploy"
       - "redis_deploy"
       - "mysql_deploy"
-    #deploy:
-    #  restart_policy:
-    #    condition: on-failure
-    #    delay: 1s
-    #    max_attempts: 10
-    #    window: 5s
+      - "web_deploy"
 
   ai_deploy: 
     image: "ai:v0"
@@ -56,12 +64,34 @@ services:
       - "redis_deploy"
       - "mysql_deploy"
       - "streamer_deploy"
-    #deploy:
-    #  restart_policy:
-    #    condition: on-failure
-    #    delay: 1s
-    #    max_attempts: 10
-    #    window: 5s
+
+  visualizer_deploy: 
+    image: "visualizer:v0"
+    ports:
+      - "8003:8003"
+    network_mode: "host"
+    volumes:
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/visualizer:/home
+    depends_on:
+      - "kafka_deploy"
+      - "redis_deploy"
+      - "mysql_deploy"
+      - "streamer_deploy"
+      - "ai_deploy"
+
+  saver_deploy: 
+    image: "saver:v0"
+    ports:
+      - "8006:8006"
+    network_mode: "host"
+    volumes:
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/saver:/home
+    depends_on:
+      - "kafka_deploy"
+      - "redis_deploy"
+      - "mysql_deploy"
+      - "streamer_deploy"
+      - "ai_deploy"
 
   broadcaster_deploy:
     image: "broadcaster2:v0"
@@ -72,6 +102,7 @@ services:
       - "kafka_deploy"
       - "redis_deploy"
       - "streamer_deploy"
+      - "visualizer_deploy"
     volumes:
       - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/broadcaster:/home
 
@@ -86,3 +117,4 @@ services:
       - "streamer_deploy"
     volumes:
       - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/cloud_handler:/home
+

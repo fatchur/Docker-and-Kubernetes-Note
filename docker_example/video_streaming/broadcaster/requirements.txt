@@ -7,5 +7,5 @@ kafka-python
 opencv-python
 flask-socketIO
 flask-cors
-
+requests
 

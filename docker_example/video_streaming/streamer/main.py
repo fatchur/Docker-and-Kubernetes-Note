@@ -17,8 +17,10 @@ logging.warning('======= SYSTEM WARMINGUP =========')
 # ---------------------------------- #
 # initializing kafka producer        #
 # ---------------------------------- #
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
-                         value_serializer=lambda x: dumps(x).encode('utf-8'))
+producer = KafkaProducer(bootstrap_servers=['0.0.0.0:9092'],
+                         value_serializer=lambda x: dumps(x).encode('utf-8'),
+                         batch_size=0,
+                         linger_ms=10)
 # ---------------------------------- #
 # initializing the redis db          #
 # ---------------------------------- #
@@ -31,9 +33,9 @@ cap_dict = {}
 camera_name_connectionproblem = []
 camera_name_encodeproblem  = []
 
-IMG_INVALID_URL = cv2.imread('assets/invalid_url200.jpg')
-IMG_CONNECTION_ERROR = cv2.imread('assets/connection_error200.jpg')
-IMG_ENCODE_ERROR = cv2.imread('assets/encode_error200.jpg')
+IMG_INVALID_URL = cv2.imread('assets/invalid_url.jpg')
+IMG_CONNECTION_ERROR = cv2.imread('assets/connection_error.jpg')
+IMG_ENCODE_ERROR = cv2.imread('assets/encode_error.jpg')
 IMG_INVALID_URL = cv2.imencode('.jpg', IMG_INVALID_URL)[1]
 IMG_CONNECTION_ERROR = cv2.imencode('.jpg', IMG_CONNECTION_ERROR)[1]
 IMG_ENCODE_ERROR = cv2.imencode('.jpg', IMG_ENCODE_ERROR)[1]
@@ -187,7 +189,8 @@ def stream():
             for cam_id in camera_frame: 
                 if camera_frame[cam_id]['ret'] == True: 
                     img = camera_frame[cam_id]['frame']
-                    img = cv2.resize(img, (200, 200))
+                    img = cv2.resize(img, (416, 416))
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                     jpg_success, img = cv2.imencode('.jpg', img)
 
                     if jpg_success:
@@ -208,10 +211,18 @@ def stream():
                         camera_id_connectionproblem.append(cam_id)
 
             # ---------------------------------- #
+            # if the ai engine is ready          #
             # transmit data via kafka            #
             # ---------------------------------- #
-            producer.send('ai_topic', value=transferred_data)
-            time.sleep(0.07)
+            ai_status = r.get('ai_status')
+            if ai_status == None: 
+                r.set('ai_status', 0)
+                ai_status = r.get('ai_status')
+            if int(ai_status) == 0:
+                producer.send('ai_topic', value=transferred_data)
+                producer.flush()
+                r.set('ai_status', 1)
+                time.sleep(0.01)
         
         # ---------------------------------- #
         # reconnect the camera               #

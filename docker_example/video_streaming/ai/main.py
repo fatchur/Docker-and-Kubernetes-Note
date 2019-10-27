@@ -1,6 +1,8 @@
 import io
 import cv2 
 import json
+import time
+import redis
 import base64
 import logging
 import numpy as np
@@ -23,7 +25,6 @@ def stringToImage(base64_string):
     imgData = base64.b64decode(base64_string)
     return Image.open(io.BytesIO(imgData)) 
 
-
 # ---------------------------------- #
 # logging setup                      #
 # ---------------------------------- #
@@ -33,25 +34,9 @@ logging.basicConfig(filename='/home/ai.log',
 logging.warning('======= SYSTEM WARMINGUP =========')
 
 # ---------------------------------- #
-# initializing yolo object           #
-# building yolo network              #
-# restoring model                    #
+# initializing the redis db          #
 # ---------------------------------- #
-simple_yolo = Yolo(num_of_class=4,
-         objectness_loss_alpha=10., 
-         noobjectness_loss_alpha=0.1, 
-         center_loss_alpha=10., 
-         size_loss_alpha=10., 
-         class_loss_alpha=10.,
-         add_modsig_toshape=True,
-         dropout_rate = 0.2) 
-
-simple_yolo.build_net(input_tensor=c.input_placeholder, is_training=False, network_type='very_small') 
-saver_all = tf.train.Saver()
-session = tf.Session()
-session.run(tf.global_variables_initializer())
-saver_all.restore(session, '/home/models/yolov3')
-logging.warning('===>>> INFO: Load model success ...')
+r = redis.Redis(host='localhost', port=6379, db=0, charset="utf-8")
 
 # ---------------------------------- #
 # setting kafka consumer             #
@@ -68,16 +53,39 @@ logging.warning('===>>> INFO: Kafka consumer ON ...')
 # initializing kafka producer        #
 # ---------------------------------- #
 producer = KafkaProducer(bootstrap_servers=['0.0.0.0:9092'],
-                         value_serializer=lambda x: dumps(x).encode('utf-8'))
+                         value_serializer=lambda x: json.dumps(x).encode('utf-8'),
+                         batch_size = 0,
+                         linger_ms=10)
 logging.warning('===>>> INFO: Kafka producer ON ...')
+
+# ---------------------------------- #
+# initializing yolo object           #
+# building yolo network              #
+# restoring model                    #
+# ---------------------------------- #
+simple_yolo = Yolo(num_of_class=4,
+         objectness_loss_alpha=10., 
+         noobjectness_loss_alpha=0.1, 
+         center_loss_alpha=10., 
+         size_loss_alpha=10., 
+         class_loss_alpha=10.,
+         add_modsig_toshape=True,
+         dropout_rate = 0.2) 
+
+simple_yolo.build_net(input_tensor=simple_yolo.input_placeholder, is_training=False, network_type='very_small') 
+saver_all = tf.train.Saver()
+session = tf.Session()
+session.run(tf.global_variables_initializer())
+saver_all.restore(session, '/home/model/yolov3')
+logging.warning('===>>> INFO: Load model success ...')
 
 # ---------------------------------- #
 # get the string image from kafka    #
 # input preprocessing                #
 # ---------------------------------- #
 for message in consumer:
-    message = message.value
     
+    message = message.value
     images = []
     images_b64 = []
     ids = []
@@ -86,8 +94,9 @@ for message in consumer:
         frame = message[i]['b64']
         status =  message[i]['success']
         img = stringToImage(frame)
-        img = cv2.resize(img, (416, 416)).astype(np.float32)
+        img = np.array(img).astype(np.float32)
         img = img / 255. 
+        logging.warning(img.shape)
         images.append(img)
         images_b64.append(frame)
         ids.append(i)
@@ -101,7 +110,10 @@ for message in consumer:
     # inference                          #
     # ---------------------------------- #
     detection_result = session.run(simple_yolo.boxes_dicts, feed_dict={simple_yolo.input_placeholder: images})
-    bboxes = simple_yolo.nms(detection_result, 0.8, 0.1) #[[x1, y1, w, h], [...]]
+    bboxes = []
+    for i in range(len(ids)): 
+        tmp = simple_yolo.nms([detection_result[i]], 0.70, 0.1) 
+        bboxes.append(tmp)
 
     # ---------------------------------- #
     # transmit data via kafka            #
@@ -109,11 +121,14 @@ for message in consumer:
     transferred_data = {}
     for idx, i in enumerate(ids): 
         transferred_data[i] = {}
-        transferred_data[i]["frame"] = images_b64[idx]
-        transferred_data[i]["status"] = statuses[idx]
+        transferred_data[i]["b64"] = images_b64[idx]
+        transferred_data[i]["success"] = statuses[idx]
         transferred_data[i]["bboxes"] = bboxes[idx]
 
-    producer.send('visualizer_topic', value=transferred_data)
+    producer.send('visualizer_topic', value=transferred_data)  
+    producer.flush()
+    r.set('ai_status', 0)
+    time.sleep(0.001)
 
 
 

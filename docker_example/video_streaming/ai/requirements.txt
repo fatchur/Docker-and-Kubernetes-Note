@@ -3,3 +3,5 @@ opencv-python
 simple-tensor
 kafka-python
 pillow
+comdutils
+redis

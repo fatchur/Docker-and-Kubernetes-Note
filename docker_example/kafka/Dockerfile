@@ -12,9 +12,9 @@ RUN apt-get install -y python3-dev python3-pip
 RUN pip3 install flask 
  
 # install kafka
-RUN wget http://www-us.apache.org/dist/kafka/2.2.1/kafka_2.12-2.2.1.tgz 
-RUN tar -xzf kafka_2.12-2.2.1.tgz 
-RUN mv kafka_2.12-2.2.1 $KAFKA_HOME
+RUN wget https://www-eu.apache.org/dist/kafka/2.3.1/kafka_2.12-2.3.1.tgz
+RUN tar -xzf kafka_2.12-2.3.1.tgz
+RUN mv kafka_2.12-2.3.1 $KAFKA_HOME
 
 EXPOSE 2181 9092 5006
 WORKDIR /scripts

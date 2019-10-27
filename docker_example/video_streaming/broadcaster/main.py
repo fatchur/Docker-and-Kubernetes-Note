@@ -5,6 +5,7 @@ import json
 import redis
 import base64
 import datetime
+import requests
 import logging
 from kafka import KafkaConsumer
 from flask import Flask, request, render_template
@@ -15,7 +16,7 @@ from flask_cors import CORS
 # ---------------------------------- #
 # setting kafka consumer             #
 # ---------------------------------- #
-consumer = KafkaConsumer('ai_topic',
+consumer = KafkaConsumer('broadcaster_topic',
                         bootstrap_servers=['0.0.0.0:9092'],
                         auto_offset_reset='earliest',
                         enable_auto_commit=True,
@@ -36,6 +37,37 @@ logging.basicConfig(filename='/home/broadcaster.log', filemode='w',
                     format='%(name)s - %(levelname)s - %(message)s')
 logging.warning('======= SYSTEM WARMINGUP =========')
 
+
+@app.before_first_request
+def before_first_request_func():
+    """Method for setting the video status 'video_on' on redis to zero,
+       Called when the first user open a homepage for the first time
+    """
+    video_cond = r.get('video_on')
+    # ---------------------------------- #
+    # The first request of the first user#
+    # Set the 'video_on' to zero         #
+    # so when the user socket connected, #
+    # the streaming will begin           #
+    # ---------------------------------- #
+    if video_cond is not None: 
+        video_cond = int(video_cond)
+    elif video_cond==None or video_cond==1:
+        r.set('video_on', 0)
+
+    video_cond = r.get('video_on')
+    tm = datetime.datetime.now()
+    tm = tm.strftime("%c")
+    logging.warning("===>>> B. The data of 'video_on' in redis \
+                     was reinitialized: " + tm)
+    
+    # ---------------------------------- #
+    # trigger the cloud handler          #
+    # ---------------------------------- #
+    #url = 'http://0.0.0.0:8004/'
+    #headers = {'Content-type': 'application/json'}
+    #json_data = {}
+    #requests.post(url, json=json_data)
 
 
 @app.route('/web')
@@ -75,33 +107,8 @@ def sessions():
     headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     headers['Content-Type'] = 'application/json'
     return (json.dumps('ok'), 200, headers)
+
     
-
-@app.before_first_request
-def before_first_request_func():
-    """Method for setting the video status 'video_on' on redis to zero,
-       Called when the first user open a homepage for the first time
-    """
-    video_cond = r.get('video_on')
-    print (video_cond)
-    # ---------------------------------- #
-    # The first request of the first user#
-    # Set the 'video_on' to zero         #
-    # so when the user socket connected, #
-    # the streaming will begin           #
-    # ---------------------------------- #
-    if video_cond is not None: 
-        video_cond = int(video_cond)
-    elif video_cond==None or video_cond==1:
-        r.set('video_on', 0)
-
-    video_cond = r.get('video_on')
-    tm = datetime.datetime.now()
-    tm = tm.strftime("%c")
-    logging.warning("===>>> B. The data of 'video_on' in redis \
-                     was reinitialized: " + tm)
-
-
 @app.route('/add_video_url', methods=['POST'])
 def add_video_url():
     """Method for adding camera url
@@ -109,7 +116,6 @@ def add_video_url():
     Returns:
         [type] -- [description]
     """
-    print ('INFO: add_video_url')
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
@@ -199,14 +205,13 @@ def delete_video_url():
         # 1.1 video_dict = {'video_name1': 'url', ...}
         # ---------------------------------- #
         video_dict = r.hgetall("video_dict")
-        #json_data = request.get_json()
         video_id = request.args.get("id") #json_data.get('id', None)
 
         # ---------------------------------- #
         # try to delete the camera url       #
         # ---------------------------------- #
-        r.hdel('video_dict', video_id)
         r.hdel('point_dict', video_id)
+        r.hdel('video_dict', video_id)
         return (json.dumps('ok'), 200, headers)
 
     except Exception as e: 
@@ -279,6 +284,7 @@ def edit_video_url():
         json_data['y1'] = point_y1
         json_data['y2'] = point_y2
         point_dict[video_id] = json.dumps(json_data)
+        r.hdel('point_dict', video_id)
         r.hmset("point_dict", point_dict)
         
         return (json.dumps('ok'), 200, headers)
@@ -288,10 +294,8 @@ def edit_video_url():
         return (json.dumps('ok'), 400, headers)
 
 
-
 @app.route('/get_video_list', methods=['GET'])
 def get_video_list(): 
-    print ('INFO: get_video_list')
     # ---------------------------------- #
     # Avoiding CORS                      #
     # ---------------------------------- #
@@ -359,7 +363,8 @@ def send_frame():
                 frames = json.dumps(frames)
                 socketio.emit('video_frame', frames, \
                             broadcast=True, callback=messageReceived)
-                time.sleep(0.01)
+
+            time.sleep(0.001)
 
 
 @socketio.on('url')
