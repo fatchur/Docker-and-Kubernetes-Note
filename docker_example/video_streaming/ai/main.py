@@ -112,7 +112,7 @@ for message in consumer:
     detection_result = session.run(simple_yolo.boxes_dicts, feed_dict={simple_yolo.input_placeholder: images})
     bboxes = []
     for i in range(len(ids)): 
-        tmp = simple_yolo.nms([detection_result[i]], 0.70, 0.1) 
+        tmp = simple_yolo.nms([detection_result[i]], 0.74, 0.1) 
         bboxes.append(tmp)
 
     # ---------------------------------- #
