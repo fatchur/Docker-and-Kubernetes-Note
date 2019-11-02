@@ -14,6 +14,7 @@ from comdutils.math_utils import *
 
 
 COLORS = np.random.uniform(0, 255, 255)
+TH = 0.472
 
 
 def stringToImage(base64_string):
@@ -198,49 +199,74 @@ for message in consumer:
                     # ---------------------------------- #
                     if 'head_class' in object_dict[j]: 
                         if object_dict[j]['person_class'] == 1 and object_dict[j]['head_class'] == 3: 
-                            violation_data[j] = {}
-                            violation_data[j]['b64'] = frame
-                            violation_data[j]['j_violation'] = 1
-                            violation_data[j]['h_violation'] = 1
-                            violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
-                            violation_list.append(['VIOLATION: J & H'])
-                            logging.warning('VIOLATION DETECTED JH ' +  str(object_dict[j]['person_prob']) + " " + str(object_dict[j]['head_prob']))
+                            if object_dict[j]['person_prob'] >= TH and object_dict[j]['head_prob'] >= TH: 
+                                violation_data[j] = {}
+                                violation_data[j]['b64'] = frame
+                                violation_data[j]['j_violation'] = 1
+                                violation_data[j]['h_violation'] = 1
+                                violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
+                                violation_list.append(['VIOLATION'])
+
+                            elif object_dict[j]['person_prob'] >= TH: 
+                                violation_data[j] = {}
+                                violation_data[j]['b64'] = frame
+                                violation_data[j]['j_violation'] = 1
+                                violation_data[j]['h_violation'] = 0
+                                violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
+                                violation_list.append(['VIOLATION'])
+
+                            elif object_dict[j]['head_prob'] >= TH: 
+                                violation_data[j] = {}
+                                violation_data[j]['b64'] = frame
+                                violation_data[j]['j_violation'] = 0
+                                violation_data[j]['h_violation'] = 1
+                                violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
+                                violation_list.append(['VIOLATION'])
+                            else: 
+                                violation_list.append(['-'])
 
                         elif object_dict[j]['person_class'] == 1: 
-                            violation_data[j] = {}
-                            violation_data[j]['b64'] = frame
-                            violation_data[j]['j_violation'] = 1
-                            violation_data[j]['h_violation'] = 0
-                            violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
-                            violation_list.append(['VIOLATION: J'])
-                            logging.warning('VIOLATION DETECTED J ' + str(object_dict[j]['person_prob']) )
+                            if object_dict[j]['person_prob'] >= TH:
+                                violation_data[j] = {}
+                                violation_data[j]['b64'] = frame
+                                violation_data[j]['j_violation'] = 1
+                                violation_data[j]['h_violation'] = 0
+                                violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
+                                violation_list.append(['VIOLATION'])
+                                logging.warning('VIOLATION DETECTED J ' + str(object_dict[j]['person_prob']) )
+                            else: 
+                                violation_list.append(['-'])
 
                         elif object_dict[j]['head_class'] == 3: 
-                            violation_data[j] = {}
-                            violation_data[j]['b64'] = frame
-                            violation_data[j]['j_violation'] = 0
-                            violation_data[j]['h_violation'] = 1
-                            violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
-                            violation_list.append(['VIOLATION: H'])
-                            logging.warning('VIOLATION DETECTED H ' + str(object_dict[j]['head_prob']) )
+                            if object_dict[j]['head_prob'] >= TH: 
+                                violation_data[j] = {}
+                                violation_data[j]['b64'] = frame
+                                violation_data[j]['j_violation'] = 0
+                                violation_data[j]['h_violation'] = 1
+                                violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
+                                violation_list.append(['VIOLATION'])
+                                logging.warning('VIOLATION DETECTED H ' + str(object_dict[j]['head_prob']) )
+                            else: 
+                                violation_list.append(['-'])
 
                         else: 
-                            violation_list.append(['-OK-'])
-                            #logging.warning('-----NO VIOLATION ' + str(object_dict[j]['person_prob']) + " " + str(object_dict[j]['head_prob']))
+                            violation_list.append(['OK'])
 
                     else: 
                         if object_dict[j]['person_class'] == 1: 
-                            violation_data[j] = {}
-                            violation_data[j]['b64'] = frame
-                            violation_data[j]['j_violation'] = 1
-                            violation_data[j]['h_violation'] = 0
-                            violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
-                            violation_list.append(['VIOLATION: J'])
-                            logging.warning('VIOLATION DETECTED J--s ' + str(object_dict[j]['person_prob']) )
+                            if object_dict[j]['person_prob'] >= TH:
+                                violation_data[j] = {}
+                                violation_data[j]['b64'] = frame
+                                violation_data[j]['j_violation'] = 1
+                                violation_data[j]['h_violation'] = 0
+                                violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
+                                violation_list.append(['VIOLATION'])
+                                logging.warning('VIOLATION DETECTED J--s ' + str(object_dict[j]['person_prob']) )
+                            else: 
+                                violation_list.append(['-'])
 
                         else: 
-                            violation_list.append(['-OK-'])
-                            #logging.warning('-----NO VIOLATION ' + str(object_dict[j]['person_prob']) )
+                            violation_list.append(['OK'])
                     
             producer.send('cloud_handler_topic', value=violation_data)  
             producer.flush()

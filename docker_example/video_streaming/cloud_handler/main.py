@@ -7,6 +7,57 @@ import logging
 import numpy as np 
 from flask import Flask, request
 from flask_cors import CORS
+from comdutils.file_utils import get_filenames
+
+
+
+def process_filename(filenames): 
+    """[summary]
+    
+    Arguments:
+        filenames {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
+    filenames.reverse()
+
+    file_list = []
+    for i in filenames: 
+        id = i[20:55]
+        tmp = {}
+        tmp['id'] = id
+
+        if ('_VIOLATION___' in i) or ('_VIOLATION_VIOLATION_' in i): 
+            tmp['jacket_violation'] = 1 
+        else: 
+            tmp['jacket_violation'] = 0
+
+        if ('__VIOLATION_' in i) or ('_VIOLATION_VIOLATION_' in i): 
+            tmp['helm_violation'] = 1 
+        else: 
+            tmp['helm_violation'] = 0
+        file_list.append(tmp)
+
+    return file_list
+
+
+def search_by_id(filenames, id): 
+    """[summary]
+    
+    Arguments:
+        filenames {[type]} -- [description]
+        id {[type]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
+    selected = ''
+    for i in filenames: 
+        if id in i: 
+            selected = i 
+            break
+    return selected
 
 
 # ---------------------------------- #
@@ -81,8 +132,14 @@ def total_page():
     
     resp = {}
     try: 
-        num_item = request.args.get("item") 
-        resp['total_page'] = 1
+        num_item = int(request.args.get("item"))
+        filenames = get_filenames('/home/saver/res/full/')
+        total_item = len(filenames)
+        total_page = math.ceil(total_item/num_item)
+        if total_page == 0: 
+            total_page = 1
+
+        resp['total_page'] = total_page
         return (json.dumps(resp), 200, headers)
 
     except Exception as e: 
@@ -114,24 +171,47 @@ def get_item():
 
     resp = {}
     try: 
-        page = request.args.get("page") 
+        page = int(request.args.get("page"))
         num_item = int(request.args.get("limit"))
-        
-        data = []
-        for i in range(num_item): 
-            tmp = {}
-            tmp['id'] = str(uuid.uuid1())
-            tmp['camera'] = 'kilang depan'
-            tmp['helm'] = 0
-            tmp['jacket'] = 0
-            tmp['date'] = str(datetime.datetime.now())
-            data.append(tmp)
 
+        # ---------------------------------- #
+        # get the list of saved image filenames 
+        # preprocess the ID, jacket and helm violation
+        # ---------------------------------- #
+        filenames = get_filenames('/home/saver/res/full/')
+        filenames = process_filename(filenames)
+
+        # ---------------------------------- #
+        # get the total page
+        # ---------------------------------- #
+        total_item = len(filenames)
+        total_page = math.ceil(total_item/num_item)
+        if total_page == 0: 
+            total_page = 1
+        
+        # ---------------------------------- #
+        # prepare the response
+        # ---------------------------------- #
+        data = []
+        for i in range(num_item):
+            try: 
+                filenames_idx = page * num_item + i
+                tmp = {}
+                tmp['id'] = filenames[filenames_idx]['id']
+                tmp['camera'] = 'kilang depan'
+                tmp['helm'] = filenames[filenames_idx]['helm_violation']
+                tmp['jacket'] = filenames[filenames_idx]['jacket_violation']
+                tmp['date'] = str(datetime.datetime.now())
+                data.append(tmp) 
+            except Exception as e:
+                logging.warning(str(e))
+                
         resp['data'] = data
+        resp['total_page'] = total_page
         return (json.dumps(resp), 200, headers)
 
     except Exception as e: 
-        logging.warning("====>>: TOTAL_PAGE ERROR: " + str(e))
+        logging.warning("====>>: GET_ITEM ERROR: " + str(e))
         return (json.dumps(resp), 400, headers)
 
 
@@ -159,12 +239,25 @@ def get_image():
 
     resp = {}
     try: 
+        # ---------------------------- #
+        # Get the argument             #
+        # ---------------------------- #
         obj_id = request.args.get("id") 
+        # ---------------------------- #
+        # process the full image and cropped filename   
+        # ---------------------------- #
+        filenames = get_filenames('/home/saver/res/full/')
+        filename_full = search_by_id(filenames, obj_id)
+        filename_cropped = filename_full[:-8] + 'cropped.jpg'
         
-        full_img = np.zeros((400, 400, 3)).astype(np.uint8)
+        # ---------------------------- #
+        # read both image              # 
+        # ---------------------------- #
+        full_img = cv2.imread('/home/saver/res/full/' + filename_full)
         full_img = cv2.imencode('.jpg', full_img)[1]
         full_img = base64.b64encode(full_img).decode()
-        person_img = np.zeros((200, 80, 3)).astype(np.uint8)
+
+        person_img = cv2.imread('/home/saver/res/cropped/' + filename_cropped)
         person_img = cv2.imencode('.jpg', person_img)[1]
         person_img = base64.b64encode(person_img).decode()
 
@@ -173,7 +266,7 @@ def get_image():
         return (json.dumps(resp), 200, headers)
 
     except Exception as e: 
-        logging.warning("====>>: TOTAL_PAGE ERROR: " + str(e))
+        logging.warning("====>>: GET_IMAGE ERROR: " + str(e))
         return (json.dumps(resp), 400, headers)
 
 

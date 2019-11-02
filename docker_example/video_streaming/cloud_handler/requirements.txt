@@ -6,5 +6,6 @@ kafka-python
 opencv-python
 flask-cors
 pillow
+comdutils
 
 

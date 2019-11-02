@@ -26,7 +26,7 @@ services:
       - "kafka_deploy"
       - "redis_deploy"
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/cloud_handler:/home
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming:/home
 
   web_deploy:
     image: "web:v0"
