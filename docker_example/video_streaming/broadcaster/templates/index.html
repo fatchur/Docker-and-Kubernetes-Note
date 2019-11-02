@@ -99,7 +99,8 @@
 							<!-- send and get the data from server -->
 							<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js'></script>
 							<script>
-								const socket = io.connect('http://192.168.31.200:8005');
+								const socket = io.connect('http://0.0.0.0:8005');
+								//const socket = io.connect('http://10.27.63.225:8005');
 								
 								socket.on('connect', function() {
 									socket.emit( 'url', {

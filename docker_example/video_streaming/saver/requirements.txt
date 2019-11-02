@@ -1,0 +1,8 @@
+numpy
+opencv-python
+kafka-python
+pillow
+comdutils
+shapely
+redis
+pymysql

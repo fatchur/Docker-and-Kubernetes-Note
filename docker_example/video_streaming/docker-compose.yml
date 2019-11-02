@@ -17,14 +17,16 @@ services:
     depends_on:
       - "kafka_deploy"
 
-  mysql_deploy:
-    image: "mysql_deploy:v0"
+  cloud_handler_deploy:
+    image: "cloud_handler:v0"
     ports:
-      - "3306:3306"
+      - "8004:8004"
     network_mode: "host"
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
+    volumes:
+      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/cloud_handler:/home
 
   web_deploy:
     image: "web:v0"
@@ -34,7 +36,7 @@ services:
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
-      - "mysql_deploy"
+      - "cloud_handler_deploy"
     volumes:
       - /media/qoala/New Volume3/ivb-pertamina:/home
 
@@ -48,7 +50,7 @@ services:
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
-      - "mysql_deploy"
+      - "cloud_handler_deploy"
       - "web_deploy"
 
   ai_deploy: 
@@ -62,7 +64,7 @@ services:
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
-      - "mysql_deploy"
+      - "cloud_handler_deploy"
       - "streamer_deploy"
 
   visualizer_deploy: 
@@ -75,7 +77,6 @@ services:
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
-      - "mysql_deploy"
       - "streamer_deploy"
       - "ai_deploy"
 
@@ -89,7 +90,6 @@ services:
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
-      - "mysql_deploy"
       - "streamer_deploy"
       - "ai_deploy"
 
@@ -105,16 +105,4 @@ services:
       - "visualizer_deploy"
     volumes:
       - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/broadcaster:/home
-
-  cloud_handler_deploy:
-    image: "cloud_handler:v0"
-    ports:
-      - "8004:8004"
-    network_mode: "host"
-    depends_on:
-      - "kafka_deploy"
-      - "mysql_deploy"
-      - "streamer_deploy"
-    volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/cloud_handler:/home
 

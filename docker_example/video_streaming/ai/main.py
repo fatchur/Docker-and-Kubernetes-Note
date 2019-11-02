@@ -72,11 +72,11 @@ simple_yolo = Yolo(num_of_class=4,
          add_modsig_toshape=True,
          dropout_rate = 0.2) 
 
-simple_yolo.build_net(input_tensor=simple_yolo.input_placeholder, is_training=False, network_type='very_small') 
+simple_yolo.build_net(input_tensor=simple_yolo.input_placeholder, is_training=False, network_type='medium') 
 saver_all = tf.train.Saver()
 session = tf.Session()
 session.run(tf.global_variables_initializer())
-saver_all.restore(session, '/home/model/yolov3')
+saver_all.restore(session, '/home/model_medium/yolov3')
 logging.warning('===>>> INFO: Load model success ...')
 
 # ---------------------------------- #
@@ -112,7 +112,7 @@ for message in consumer:
     detection_result = session.run(simple_yolo.boxes_dicts, feed_dict={simple_yolo.input_placeholder: images})
     bboxes = []
     for i in range(len(ids)): 
-        tmp = simple_yolo.nms([detection_result[i]], 0.74, 0.1) 
+        tmp = simple_yolo.nms([detection_result[i]], 0.77, 0.1) 
         bboxes.append(tmp)
 
     # ---------------------------------- #
