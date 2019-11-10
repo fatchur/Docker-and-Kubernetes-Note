@@ -108,6 +108,82 @@ def sessions():
     headers['Content-Type'] = 'application/json'
     return (json.dumps('ok'), 200, headers)
 
+
+@app.route('/edit_ai', methods=['PUT'])
+def edit_ai():
+    """Method for adding camera url
+    
+    Returns:
+        [type] -- [description]
+    """
+    logging.warning("====>>: EDIT AI")
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'PUT',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'OPTIONS, PUT'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+
+    try: 
+        # ---------------------------------- #
+        # 1. redis video_dict: video_dictionary
+        # 1.1 video_dict = {'video_name1': 'url', ...}
+        # ---------------------------------- #
+        video_dict = json_data.get('bbox_threshold', None)
+        video_dict = json_data.get('class_threshold', None)
+        
+        return (json.dumps('ok'), 200, headers)
+    
+    except Exception as e:
+        logging.warning("====>>: EDIT AI ERROR: " + str(e))
+        return (json.dumps('ok'), 400, headers)
+
+
+@app.route('/get_ai_data', methods=['GET'])
+def get_ai_data(): 
+    # ---------------------------------- #
+    # Avoiding CORS                      #
+    # ---------------------------------- #
+    if request.method == 'OPTIONS':
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
+        return ('', 204, headers)
+
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    response = {}
+    response['bbox_threshold'] = 0.8 
+    response['class_threshold'] = 0.47
+    response['fps'] = 15.2
+
+    
+    # ---------------------------- #
+    # Set response header          #
+    # ---------------------------- #
+    headers = {}
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'OPTIONS, GET'
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+    headers['Content-Type'] = 'application/json'
+    return (json.dumps(response), 200, headers)
+
     
 @app.route('/add_video_url', methods=['POST'])
 def add_video_url():
@@ -217,7 +293,6 @@ def delete_video_url():
     except Exception as e: 
         logging.warning("====>>: DELETE ERROR: " + str(e))
         return (json.dumps('ok'), 400, headers)
-
 
 
 @app.route('/edit_video_url', methods=['PUT'])

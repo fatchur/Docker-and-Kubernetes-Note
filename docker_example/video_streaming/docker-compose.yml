@@ -29,7 +29,7 @@ services:
       - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming:/home
 
   web_deploy:
-    image: "web:v0"
+    image: "web:v1"
     ports:
       - "8080:8080"
     network_mode: "host"
