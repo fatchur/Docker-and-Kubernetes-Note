@@ -30,14 +30,14 @@ def process_filename(filenames):
         tmp['id'] = id
 
         if ('_VIOLATION___' in i) or ('_VIOLATION_VIOLATION_' in i): 
-            tmp['jacket_violation'] = 1 
+            tmp['jacket_violation'] = 0 #violation
         else: 
-            tmp['jacket_violation'] = 0
+            tmp['jacket_violation'] = 1
 
         if ('__VIOLATION_' in i) or ('_VIOLATION_VIOLATION_' in i): 
-            tmp['helm_violation'] = 1 
+            tmp['helm_violation'] = 0 #violation
         else: 
-            tmp['helm_violation'] = 0
+            tmp['helm_violation'] = 1
         file_list.append(tmp)
 
     return file_list
