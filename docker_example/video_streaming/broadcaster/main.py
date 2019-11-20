@@ -60,14 +60,6 @@ def before_first_request_func():
     tm = tm.strftime("%c")
     logging.warning("===>>> B. The data of 'video_on' in redis \
                      was reinitialized: " + tm)
-    
-    # ---------------------------------- #
-    # trigger the cloud handler          #
-    # ---------------------------------- #
-    #url = 'http://0.0.0.0:8004/'
-    #headers = {'Content-type': 'application/json'}
-    #json_data = {}
-    #requests.post(url, json=json_data)
 
 
 @app.route('/web')
@@ -142,8 +134,14 @@ def edit_ai():
         # 1. redis video_dict: video_dictionary
         # 1.1 video_dict = {'video_name1': 'url', ...}
         # ---------------------------------- #
-        video_dict = json_data.get('bbox_threshold', None)
-        video_dict = json_data.get('class_threshold', None)
+        json_data = request.get_json()
+        bbox_thd = json_data.get('bbox_threshold', None)
+        class_thd = json_data.get('class_threshold', None)
+
+        ai_setup = {}
+        ai_setup['bbox_thd'] = bbox_thd
+        ai_setup['class_thd'] = class_thd
+        r.hmset("ai_setup", ai_setup)
         
         return (json.dumps('ok'), 200, headers)
     
@@ -426,13 +424,14 @@ def send_frame():
             for i in(message):
                 frame = message[i]["b64"]
                 status = message[i]["success"]
+                video_name = message[i]["video_name"]
 
                 if status:
                     frame = 'data:image/jpeg;base64,' + frame
                 else: 
                     frame = ''
                     
-                frames.append({"id": i, "key": frame})
+                frames.append({"id": i, "name": video_name, "key": frame})
             
             if len(frames) > 0:
                 frames = json.dumps(frames)

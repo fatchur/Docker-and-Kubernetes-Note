@@ -116,6 +116,7 @@ for message in consumer:
             frame = message[i]['b64']
             status =  message[i]['success']
             bboxes = np.array(message[i]['bboxes'])
+            video_name = message[i]['video_name']
 
             img = stringToImage(frame)
             img = np.array(img).astype(np.uint8)
@@ -284,6 +285,7 @@ for message in consumer:
             transferred_data[i] = {}
             transferred_data[i]['b64'] = img
             transferred_data[i]['success'] = status
+            transferred_data[i]['video_name'] = video_name
 
         except Exception as e: 
             logging.warning(e)

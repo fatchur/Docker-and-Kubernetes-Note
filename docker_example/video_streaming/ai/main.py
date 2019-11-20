@@ -90,9 +90,11 @@ for message in consumer:
     images_b64 = []
     ids = []
     statuses = []
+    video_names = []
     for i in(message):
         frame = message[i]['b64']
         status =  message[i]['success']
+        video_name = message[i]['video_name']
         img = stringToImage(frame)
         img = np.array(img).astype(np.float32)
         img = img / 255. 
@@ -101,6 +103,7 @@ for message in consumer:
         images_b64.append(frame)
         ids.append(i)
         statuses.append(status)
+        video_names.append(video_name)
     
     batch = len(images)
     images = np.array(images)
@@ -124,6 +127,7 @@ for message in consumer:
         transferred_data[i]["b64"] = images_b64[idx]
         transferred_data[i]["success"] = statuses[idx]
         transferred_data[i]["bboxes"] = bboxes[idx]
+        transferred_data[i]["video_name"] = video_names[idx]
 
     producer.send('visualizer_topic', value=transferred_data)  
     producer.flush()
