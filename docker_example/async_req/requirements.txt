@@ -1,0 +1,4 @@
+grequest
+flask
+flask-cors
+gunicorn
