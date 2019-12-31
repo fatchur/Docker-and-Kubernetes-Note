@@ -41,7 +41,7 @@ services:
       - /media/qoala/New Volume3/ivb-pertamina:/home
 
   streamer_deploy: 
-    image: "streamer:v0"
+    image: "streamer:v1"
     ports:
       - "8001:8001"
     network_mode: "host"

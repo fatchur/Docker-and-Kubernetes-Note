@@ -8,6 +8,8 @@ import numpy as np
 from json import dumps
 from kafka import KafkaProducer
 
+import asyncio
+
 
 # ---------------------------------- #
 # python logging setup               #
@@ -117,7 +119,13 @@ def reconnect(cam_id):
         pass
 
 
-def stream():
+async def get_frame(cap):
+    """ Function for retrieving frame from cctv"""
+    ret, frame = cap.read()  
+    return ret, frame
+
+
+async def stream():
     global camera_dict, cap_dict, camera_name_connectionproblem, camera_name_encodeproblem
 
     while(True):
@@ -179,7 +187,10 @@ def stream():
             # ---------------------------------- #
             for cam_id in cap_dict:
                 camera_frame[cam_id] = {}
-                camera_frame[cam_id]['ret'], camera_frame[cam_id]['frame'] = cap_dict[cam_id].read()
+                camera_frame[cam_id]['async_task'] = asyncio.create_task(asyncio.wait_for(get_frame(cap_dict[cam_id]), timeout=0.05)) 
+
+            for cam_id in cap_dict: 
+                camera_frame[cam_id]['ret'], camera_frame[cam_id]['frame'] = await camera_frame[cam_id]['async_task']
 
             # ---------------------------------- #
             # kafka payload preparation          #
@@ -235,7 +246,7 @@ def stream():
 
 
 if __name__ == '__main__':
-    stream()
+    asyncio.run(stream())
 
 
 
