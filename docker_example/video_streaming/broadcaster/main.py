@@ -72,35 +72,6 @@ def web():
     return render_template('index.html')
 
 
-@app.route('/', methods=['POST'])
-def sessions():
-    """ Endpoint for init first request
-    
-    Returns:
-        [hmtl] -- html webpage
-    """
-    # ---------------------------------- #
-    # Avoiding CORS                      #
-    # ---------------------------------- #
-    if request.method == 'OPTIONS':
-        headers = {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST',
-            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'}
-        return ('', 204, headers)
-
-    # ---------------------------- #
-    # Set response header          #
-    # ---------------------------- #
-    headers = {}
-    headers['Access-Control-Allow-Origin'] = '*'
-    headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS, POST'
-    headers['Access-Control-Allow-Credentials'] = 'true'
-    headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
-    headers['Content-Type'] = 'application/json'
-    return (json.dumps('ok'), 200, headers)
-
-
 @app.route('/edit_ai', methods=['PUT'])
 def edit_ai():
     """Method for adding camera url
@@ -139,8 +110,9 @@ def edit_ai():
         class_thd = json_data.get('class_threshold', None)
 
         ai_setup = {}
-        ai_setup['bbox_thd'] = bbox_thd
-        ai_setup['class_thd'] = class_thd
+        ai_setup['bbox_threshold'] = bbox_thd
+        ai_setup['class_threshold'] = class_thd
+        ai_setup['fps'] = 12.2
         r.hmset("ai_setup", ai_setup)
         
         return (json.dumps('ok'), 200, headers)
@@ -163,14 +135,21 @@ def get_ai_data():
         return ('', 204, headers)
 
     # ---------------------------- #
-    # Set response header          #
+    # Set response                 #
     # ---------------------------- #
     response = {}
-    response['bbox_threshold'] = 0.8 
-    response['class_threshold'] = 0.47
-    response['fps'] = 15.2
+    try: 
+        ai_setup = r.hgetall("ai_setup")
+        response['bbox_threshold'] = ai_setup['bbox_threshold'.encode("utf-8")].decode("utf-8")
+        response['class_threshold'] = ai_setup['class_threshold'.encode("utf-8")].decode("utf-8")
+        response['fps'] = ai_setup['fps'.encode("utf-8")].decode("utf-8")
 
-    
+    except Exception as e: 
+        logging.warning("====>>: GET AI ERROR: " + str(e))
+        response['bbox_threshold'] = 0.0
+        response['class_threshold'] = 0.0
+        response['fps'] = 0.0
+
     # ---------------------------- #
     # Set response header          #
     # ---------------------------- #

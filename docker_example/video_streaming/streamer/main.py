@@ -228,15 +228,9 @@ async def stream():
             # if the ai engine is ready          #
             # transmit data via kafka            #
             # ---------------------------------- #
-            ai_status = r.get('ai_status')
-            if ai_status == None: 
-                r.set('ai_status', 0)
-                ai_status = r.get('ai_status')
-            if int(ai_status) == 0:
-                producer.send('ai_topic', value=transferred_data)
-                producer.flush()
-                r.set('ai_status', 1)
-                time.sleep(0.01)
+            producer.send('ai_topic', value=transferred_data)
+            producer.flush()
+            time.sleep(0.07)
         
         # ---------------------------------- #
         # reconnect the camera               #

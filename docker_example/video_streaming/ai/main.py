@@ -3,8 +3,10 @@ import cv2
 import json
 import time
 import redis
+import random
 import base64
 import logging
+import datetime
 import numpy as np
 from PIL import Image
 import tensorflow as tf
@@ -79,12 +81,16 @@ session.run(tf.global_variables_initializer())
 saver_all.restore(session, '/home/model_medium/yolov3')
 logging.warning('===>>> INFO: Load model success ...')
 
+BBOX_THD = 0.80
+
 # ---------------------------------- #
 # get the string image from kafka    #
 # input preprocessing                #
 # ---------------------------------- #
 for message in consumer:
-    
+    # for claculating the FPS
+    #start = datetime.datetime.now()
+
     message = message.value
     images = []
     images_b64 = []
@@ -98,7 +104,6 @@ for message in consumer:
         img = stringToImage(frame)
         img = np.array(img).astype(np.float32)
         img = img / 255. 
-        logging.warning(img.shape)
         images.append(img)
         images_b64.append(frame)
         ids.append(i)
@@ -108,14 +113,17 @@ for message in consumer:
     batch = len(images)
     images = np.array(images)
     images = images.reshape((batch, 416, 416, 3))
-
+    
+    # for claculating the FPS
+    start = datetime.datetime.now()
     # ---------------------------------- #
     # inference                          #
     # ---------------------------------- #
     detection_result = session.run(simple_yolo.boxes_dicts, feed_dict={simple_yolo.input_placeholder: images})
+    end = datetime.datetime.now()
     bboxes = []
     for i in range(len(ids)): 
-        tmp = simple_yolo.nms([detection_result[i]], 0.77, 0.1) 
+        tmp = simple_yolo.nms([detection_result[i]], BBOX_THD, 0.1) 
         bboxes.append(tmp)
 
     # ---------------------------------- #
@@ -131,8 +139,25 @@ for message in consumer:
 
     producer.send('visualizer_topic', value=transferred_data)  
     producer.flush()
-    r.set('ai_status', 0)
-    time.sleep(0.001)
+
+    # ---------------------------------- #
+    # get and set the ai parameter       #
+    # ---------------------------------- #
+    if random.randint(0, 3) == 0:
+        try: 
+            ai_setup = r.hgetall("ai_setup")
+            BBOX_THD = float(ai_setup['bbox_threshold'.encode("utf-8")].decode("utf-8")) 
+            
+            #end = datetime.datetime.now()
+            delta = float((end - start).microseconds/1E6)
+            FPS = 1./delta
+            ai_setup['fps'] = FPS 
+
+            r.hmset("ai_setup", ai_setup)
+
+        except Exception as e: 
+            logging.warning('===>>> ERROR AI UPDATE: ' + str(e))
+
 
 
 

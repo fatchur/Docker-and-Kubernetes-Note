@@ -99,7 +99,7 @@ def main():
             # save image                         #
             # ---------------------------------- # 
             img_id = str(uuid.uuid1())
-            img_time = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            img_time = str((datetime.datetime.now() + datetime.timedelta(hours=7)).strftime("%Y-%m-%d %H:%M:%S"))
             img_name = img_time + "_" + img_id + "_" + JACKET_CLASS[j_violation] + "_" + HELM_CLASS[h_violation]
             cv2.imwrite("res/full/" + img_name + "_full.jpg", img)
             cv2.imwrite("res/cropped/" + img_name + "_cropped.jpg", cropped_img)
