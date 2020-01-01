@@ -99,7 +99,7 @@ Example of consuming message:
 ```
 
 ## Running Kafka Docker
-`sudo docker run --name <container name> -d -p 9092:9092 -p 2181:2181 --network=host <image name>:<tag>`
+`sudo docker run -it --name <container name> -p 9092:9092 -p 2181:2181 --network=host --memory="2g" --entrypoint /bin/bash <image name>:<tag>`
 
 
 
