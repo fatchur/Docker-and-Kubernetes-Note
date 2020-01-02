@@ -96,13 +96,11 @@ producer = KafkaProducer(bootstrap_servers=['0.0.0.0:9092'],
                          linger_ms=10)
 logging.warning('=> INFO: Kafka producer ON ...')
 
-
 # ---------------------------------- #
 # get the string image from kafka    #
 # input preprocessing                #
 # ---------------------------------- #
 for message in consumer:
-    
     transferred_data = {}
     message = message.value
 

@@ -152,7 +152,6 @@ for message in consumer:
             delta = float((end - start).microseconds/1E6)
             FPS = 1./delta
             ai_setup['fps'] = FPS 
-
             r.hmset("ai_setup", ai_setup)
 
         except Exception as e: 
