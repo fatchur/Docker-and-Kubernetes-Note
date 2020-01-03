@@ -42,6 +42,8 @@ IMG_INVALID_URL = cv2.imencode('.jpg', IMG_INVALID_URL)[1]
 IMG_CONNECTION_ERROR = cv2.imencode('.jpg', IMG_CONNECTION_ERROR)[1]
 IMG_ENCODE_ERROR = cv2.imencode('.jpg', IMG_ENCODE_ERROR)[1]
 
+sleep_time = 0.07
+
 
 def update_camera_dict():
     """Functioin for update the camera url from redis
@@ -126,7 +128,7 @@ async def get_frame(cap):
 
 
 async def stream():
-    global camera_dict, cap_dict, camera_name_connectionproblem, camera_name_encodeproblem
+    global camera_dict, cap_dict, camera_name_connectionproblem, camera_name_encodeproblem, sleep_time
 
     while(True):
         # ---------------------------------- #
@@ -230,14 +232,22 @@ async def stream():
             # ---------------------------------- #
             producer.send('ai_topic', value=transferred_data)
             producer.flush()
-            time.sleep(0.07)
+            time.sleep(sleep_time)
         
         # ---------------------------------- #
         # reconnect the camera               #
         # ---------------------------------- #
         for i in camera_id_connectionproblem:        
             reconnect(i)
-
+        
+        try: 
+            ai_setup = r.hgetall("ai_setup")
+            fps = float(ai_setup['fps'.encode("utf-8")].decode("utf-8")) 
+            sleep_time = 1./fps + 0.01
+            
+        except Exception as e: 
+            logging.warning("==>>: FAIL to update sleep parameters " + str(e)) 
+            
 
 if __name__ == '__main__':
     asyncio.run(stream())

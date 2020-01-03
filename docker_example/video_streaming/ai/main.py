@@ -89,7 +89,7 @@ BBOX_THD = 0.80
 # ---------------------------------- #
 for message in consumer:
     # for claculating the FPS
-    #start = datetime.datetime.now()
+    start = datetime.datetime.now()
 
     message = message.value
     images = []
@@ -114,13 +114,10 @@ for message in consumer:
     images = np.array(images)
     images = images.reshape((batch, 416, 416, 3))
     
-    # for claculating the FPS
-    start = datetime.datetime.now()
     # ---------------------------------- #
     # inference                          #
     # ---------------------------------- #
     detection_result = session.run(simple_yolo.boxes_dicts, feed_dict={simple_yolo.input_placeholder: images})
-    end = datetime.datetime.now()
     bboxes = []
     for i in range(len(ids)): 
         tmp = simple_yolo.nms([detection_result[i]], BBOX_THD, 0.1) 
@@ -147,12 +144,17 @@ for message in consumer:
         try: 
             ai_setup = r.hgetall("ai_setup")
             BBOX_THD = float(ai_setup['bbox_threshold'.encode("utf-8")].decode("utf-8")) 
+            CLS_THD = float(ai_setup['class_threshold'.encode("utf-8")].decode("utf-8")) 
             
-            #end = datetime.datetime.now()
+            end = datetime.datetime.now()
             delta = float((end - start).microseconds/1E6)
             FPS = 1./delta
-            ai_setup['fps'] = FPS 
-            r.hmset("ai_setup", ai_setup)
+
+            tmp = {}
+            tmp['bbox_threshold'] = BBOX_THD 
+            tmp['class_threshold'] = CLS_THD 
+            tmp['fps'] = FPS
+            r.hmset("ai_setup", tmp)
 
         except Exception as e: 
             logging.warning('===>>> ERROR AI UPDATE: ' + str(e))

@@ -112,7 +112,7 @@ def edit_ai():
         ai_setup = {}
         ai_setup['bbox_threshold'] = bbox_thd
         ai_setup['class_threshold'] = class_thd
-        ai_setup['fps'] = 12.2
+        ai_setup['fps'] = 7.0
         r.hmset("ai_setup", ai_setup)
         
         return (json.dumps('ok'), 200, headers)

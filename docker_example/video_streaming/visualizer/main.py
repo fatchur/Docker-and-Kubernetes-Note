@@ -70,12 +70,10 @@ logging.basicConfig(filename='/home/visualizer.log',
                     filemode='w', 
                     format='%(name)s - %(levelname)s - %(message)s')
 logging.warning('======= SYSTEM WARMINGUP ======')
-
 # ---------------------------------- #
 # initializing the redis db          #
 # ---------------------------------- #
 r = redis.Redis(host='0.0.0.0', port=6379, db=0, charset="utf-8")
-
 # ---------------------------------- #
 # setting kafka consumer             #
 # ---------------------------------- #
@@ -86,7 +84,6 @@ consumer = KafkaConsumer('visualizer_topic',
                         group_id='visualizer',
                         value_deserializer=lambda x: json.loads(x.decode('utf-8')))
 logging.warning('=> INFO: Kafka consumer ON ...')
-
 # ---------------------------------- #
 # initializing kafka producer        #
 # ---------------------------------- #
