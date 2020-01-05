@@ -21,7 +21,6 @@ def process_filename(filenames):
     Returns:
         [type] -- [description]
     """
-    filenames.reverse()
 
     file_list = []
     for i in filenames: 
@@ -38,8 +37,12 @@ def process_filename(filenames):
             tmp['helm_violation'] = 0 #violation
         else: 
             tmp['helm_violation'] = 1
+        tmp['name'] = i[0:19]
+        tmp['sort_index'] = int(i[:4]) + 30 * int(i[5:7]) + int(i[8:10]) + 0.042 * float(i[11:13]) + 0.0007 * float(i[14:16])
         file_list.append(tmp)
 
+    file_list = sorted(file_list,key = lambda i: i['sort_index'])
+    file_list.reverse()
     return file_list
 
 
@@ -173,8 +176,9 @@ def get_item():
                 tmp['camera'] = 'kilang depan'
                 tmp['helm'] = filenames[filenames_idx]['helm_violation']
                 tmp['jacket'] = filenames[filenames_idx]['jacket_violation']
-                tmp['date'] = str(datetime.datetime.now())
+                tmp['date'] = filenames[filenames_idx]['name']
                 data.append(tmp) 
+
             except Exception as e:
                 logging.warning(str(e))
                 
