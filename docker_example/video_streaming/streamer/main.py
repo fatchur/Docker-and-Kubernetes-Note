@@ -124,6 +124,7 @@ def reconnect(cam_id):
 async def get_frame(cap):
     """ Function for retrieving frame from cctv"""
     ret, frame = cap.read()  
+    #await asyncio.sleep(5)
     return ret, frame
 
 
@@ -189,10 +190,13 @@ async def stream():
             # ---------------------------------- #
             for cam_id in cap_dict:
                 camera_frame[cam_id] = {}
-                camera_frame[cam_id]['async_task'] = asyncio.create_task(asyncio.wait_for(get_frame(cap_dict[cam_id]), timeout=0.05)) 
-
+                camera_frame[cam_id]['async_task'] = asyncio.create_task(asyncio.wait_for(get_frame(cap_dict[cam_id]), timeout=0.07)) 
+            
             for cam_id in cap_dict: 
-                camera_frame[cam_id]['ret'], camera_frame[cam_id]['frame'] = await camera_frame[cam_id]['async_task']
+                try: 
+                    camera_frame[cam_id]['ret'], camera_frame[cam_id]['frame'] = await camera_frame[cam_id]['async_task'] 
+                except asyncio.TimeoutError:
+                    camera_frame[cam_id]['ret'], camera_frame[cam_id]['frame'] = False, None
 
             # ---------------------------------- #
             # kafka payload preparation          #
