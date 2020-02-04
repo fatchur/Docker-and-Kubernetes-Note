@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: voting-service				#the name of the service, MUST be UNIQUE within app
+  labels:
+    name: voting-service			#the tag of the service, best practice: SAME wiht the service name
+    app: demo-voting-app			#the application name, SAME with another service in an app
+spec:
+  ports:
+  - port: 80					#the port of the service
+    targetPort: 80				#the target port on the container port
+  type: LoadBalancer				#IF this service have to be accesible from external requests. For ONPREMISE, use NodePort instead.
+  selector:					#for selecting the target pod based on the application and pod name
+     name: voting-app-pod
+     app: demo-voting-app

@@ -1,0 +1,14 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: voting-app-pod                                  #the name of the pod, MUST be UNIQUE wihtin app
+  labels:
+    name: voting-app-pod                                #the tag of the pod, best practice: SAME with the pod name
+    app: demo-voting-app                                #the name of the application, SAME with other pod in same application
+spec:
+  containers:
+  - name: voting-app					#the name of the container
+    image: dockersamples/examplevotingapp_vote		#the dockerhub image for the container
+    ports:
+         - containerPort: 80				#the port of the container
