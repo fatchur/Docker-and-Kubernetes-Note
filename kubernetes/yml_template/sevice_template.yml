@@ -9,7 +9,7 @@ spec:
   ports:
   - port: 80					#the port of the service
     targetPort: 80				#the target port on the container port
-  type: LoadBalancer				#IF this service have to be accesible from external requests. For ONPREMISE, use NodePort instead.
+  type: LoadBalancer				#IF this service have to be accesible from external requests. For ClusterIP service, remove this. For ONPREMISE, use NodePort instead.
   selector:					#for selecting the target pod based on the application and pod name
      name: voting-app-pod
      app: demo-voting-app

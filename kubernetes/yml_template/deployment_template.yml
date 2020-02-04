@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voting-app-deployment 				#the name of the deploymnet, MUST unique within application
+  labels:						
+    app: demo-voting-app				#the tag for the deployment, best practice: SAME with the deployment name
+spec:
+  replicas: 3						#the number of replicated pod
+  selector:
+    matchLabels:
+      name: voting-app-pod				#the target pod name
+      app: demo-voting-app				#the target application name
+  template:
+    metadata:						#THIS PART until the end is SAME with the POD DEFINITION
+      name: voting-app-pod				
+      labels:						
+        name: voting-app-pod				
+        app: demo-voting-app
+
+    spec:
+      containers:
+      - name: voting-app
+        image: dockersamples/examplevotingapp_vote
+        ports:
+        - containerPort: 80
