@@ -28,13 +28,17 @@ def process_filename(filenames):
         tmp = {}
         tmp['id'] = id
 
-        if ('_VIOLATION___' in i) or ('_VIOLATION_VIOLATION_' in i): 
+        if ('_VIOLATION___' in i) or ('_VIOLATION_VIOLATION_' in i) or ('_VIOLATION_GRAY-ZONE_' in i): 
             tmp['jacket_violation'] = 0 #violation
+        elif ('_GRAY-ZONE___' in i) or ('_GRAY-ZONE_VIOLATION_' in i) or ('_GRAY-ZONE_GRAY-ZONE_' in i): 
+            tmp['jacket_violation'] = 2 #gray zone
         else: 
             tmp['jacket_violation'] = 1
 
-        if ('__VIOLATION_' in i) or ('_VIOLATION_VIOLATION_' in i): 
+        if ('___VIOLATION_' in i) or ('_VIOLATION_VIOLATION_' in i) or ('_GRAY-ZONE_VIOLATION_' in i): 
             tmp['helm_violation'] = 0 #violation
+        elif ('___GRAY-ZONE_' in i) or ('_VIOLATION_GRAY-ZONE_' in i) or ('_GRAY-ZONE_GRAY-ZONE_' in i): 
+            tmp['helm_violation'] = 2
         else: 
             tmp['helm_violation'] = 1
         tmp['name'] = i[0:19]

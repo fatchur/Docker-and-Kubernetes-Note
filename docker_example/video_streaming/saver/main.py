@@ -15,8 +15,8 @@ import pymysql.cursors
 
 
 
-JACKET_CLASS = ["_", "VIOLATION"]
-HELM_CLASS = ["_", "VIOLATION"]
+JACKET_CLASS = ["_", "VIOLATION", "GRAY-ZONE"]
+HELM_CLASS = ["_", "VIOLATION", "GRAY-ZONE"]
 
 # ---------------------------------- #
 # logging setup                      #

@@ -15,7 +15,7 @@ from comdutils.math_utils import *
 
 COLORS = np.random.uniform(0, 255, 255)
 TH = 0.472
-
+TH_HD = 0.35
 
 def stringToImage(base64_string):
     """Function for decoding the base64 image
@@ -195,7 +195,7 @@ for message in consumer:
                     # ---------------------------------- #
                     if 'head_class' in object_dict[j]: 
                         if object_dict[j]['person_class'] == 1 and object_dict[j]['head_class'] == 3: 
-                            if object_dict[j]['person_prob'] >= TH and object_dict[j]['head_prob'] >= TH: 
+                            if object_dict[j]['person_prob'] >= TH and object_dict[j]['head_prob'] >= TH_HD: 
                                 violation_data[j] = {}
                                 violation_data[j]['b64'] = frame
                                 violation_data[j]['j_violation'] = 1
@@ -207,14 +207,15 @@ for message in consumer:
                                 violation_data[j] = {}
                                 violation_data[j]['b64'] = frame
                                 violation_data[j]['j_violation'] = 1
-                                violation_data[j]['h_violation'] = 0
+                                violation_data[j]['h_violation'] = 2
                                 violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
                                 violation_list.append(['VIOLATION'])
+                                #logging.warning(str(object_dict[j]['person_prob']) + "-" + str(object_dict[j]['head_prob']))
 
-                            elif object_dict[j]['head_prob'] >= TH: 
+                            elif object_dict[j]['head_prob'] >= TH_HD: 
                                 violation_data[j] = {}
                                 violation_data[j]['b64'] = frame
-                                violation_data[j]['j_violation'] = 0
+                                violation_data[j]['j_violation'] = 2
                                 violation_data[j]['h_violation'] = 1
                                 violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
                                 violation_list.append(['VIOLATION'])
@@ -229,19 +230,18 @@ for message in consumer:
                                 violation_data[j]['h_violation'] = 0
                                 violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
                                 violation_list.append(['VIOLATION'])
-                                logging.warning('VIOLATION DETECTED J ' + str(object_dict[j]['person_prob']) )
+                                #logging.warning(str(object_dict[j]['person_prob']) + "-" + str(object_dict[j]['head_prob']))
                             else: 
                                 violation_list.append(['-'])
 
                         elif object_dict[j]['head_class'] == 3: 
-                            if object_dict[j]['head_prob'] >= TH: 
+                            if object_dict[j]['head_prob'] >= TH_HD: 
                                 violation_data[j] = {}
                                 violation_data[j]['b64'] = frame
                                 violation_data[j]['j_violation'] = 0
                                 violation_data[j]['h_violation'] = 1
                                 violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
                                 violation_list.append(['VIOLATION'])
-                                logging.warning('VIOLATION DETECTED H ' + str(object_dict[j]['head_prob']) )
                             else: 
                                 violation_list.append(['-'])
 
@@ -254,10 +254,10 @@ for message in consumer:
                                 violation_data[j] = {}
                                 violation_data[j]['b64'] = frame
                                 violation_data[j]['j_violation'] = 1
-                                violation_data[j]['h_violation'] = 0
+                                violation_data[j]['h_violation'] = 2
                                 violation_data[j]['bboxes'] = object_dict[j]['person_bbox']
                                 violation_list.append(['VIOLATION'])
-                                logging.warning('VIOLATION DETECTED J--s ' + str(object_dict[j]['person_prob']) )
+                                #logging.warning(" --> " + str(object_dict[j]['person_prob']) + "-")
                             else: 
                                 violation_list.append(['-'])
 

@@ -26,7 +26,7 @@ services:
       - "kafka_deploy"
       - "redis_deploy"
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming:/home
+      - /media/qoala/New Volume4/docker_kubernetes/docker_example/video_streaming:/home
 
   web_deploy:
     image: "web:v1"
@@ -38,15 +38,21 @@ services:
       - "redis_deploy"
       - "cloud_handler_deploy"
     volumes:
-      - /media/qoala/New Volume3/ivb-pertamina:/home
+      - /media/qoala/New Volume4/ivb-pertamina:/home
 
   streamer_deploy: 
-    image: "streamer:v1"
+    image: "streamer:v3"
     ports:
       - "8001:8001"
     network_mode: "host"
+    environment:
+      - DISPLAY=unix$DISPLAY
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/streamer:/home
+      - /media/qoala/New Volume4/docker_kubernetes/docker_example/video_streaming/streamer:/home 
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/video0:/dev/video0
+    devices:
+      - /dev/video0:/dev/video0
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
@@ -60,7 +66,7 @@ services:
       - "8002:8002"
     network_mode: "host"
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/ai:/home
+      - /media/qoala/New Volume4/docker_kubernetes/docker_example/video_streaming/ai:/home
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
@@ -73,7 +79,7 @@ services:
       - "8003:8003"
     network_mode: "host"
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/visualizer:/home
+      - /media/qoala/New Volume4/docker_kubernetes/docker_example/video_streaming/visualizer:/home
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
@@ -86,7 +92,7 @@ services:
       - "8006:8006"
     network_mode: "host"
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/saver:/home
+      - /media/qoala/New Volume4/docker_kubernetes/docker_example/video_streaming/saver:/home
     depends_on:
       - "kafka_deploy"
       - "redis_deploy"
@@ -104,5 +110,5 @@ services:
       - "streamer_deploy"
       - "visualizer_deploy"
     volumes:
-      - /media/qoala/New Volume3/docker_kubernetes/docker_example/video_streaming/broadcaster:/home
+      - /media/qoala/New Volume4/docker_kubernetes/docker_example/video_streaming/broadcaster:/home
 
