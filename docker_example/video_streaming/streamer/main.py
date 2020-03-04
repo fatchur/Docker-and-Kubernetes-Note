@@ -51,7 +51,11 @@ def update_camera_dict():
     global camera_dict
     camera_dict = r.hgetall("video_dict")
     for i in camera_dict: 
-        camera_dict[i] = json.loads(camera_dict[i].decode("utf-8"))
+        tmp = camera_dict[i].decode("utf-8")
+        tmp = json.loads(tmp)
+        if tmp['video_url'] == '0': 
+            tmp['video_url'] = 0
+        camera_dict[i] = tmp
 
 
 def get_deleted_camera(old_camera_idlist, 
@@ -227,6 +231,7 @@ async def stream():
                     transferred_data[cam_id.decode("utf-8")]["video_name"] = camera_dict[cam_id]['video_name']
                     transferred_data[cam_id.decode("utf-8")]["b64"] = base64.b64encode(IMG_CONNECTION_ERROR).decode()
                     transferred_data[cam_id.decode("utf-8")]["success"] = False
+
                     if cam_id not in camera_id_connectionproblem: 
                         camera_id_connectionproblem.append(cam_id)
 
